@@ -1,13 +1,13 @@
 package org.study.ioc.core;
 
-import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class SingletonBeanRegistry {
     private final Map<String,Object> singletonBeans;
 
     public SingletonBeanRegistry() {
-        singletonBeans = new HashMap<>();
+        singletonBeans = new ConcurrentHashMap<>();
     }
 
     public Object getSingleton(String beanName){
