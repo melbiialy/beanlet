@@ -1,11 +1,10 @@
-package org.study.ioc.core;
+package org.study.ioc.beans.defintion;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 public class BeanDefinitionRegistry {
-    private final Map<String,BeanDefinition> beanDefinitionMap;
+    private final Map<String, BeanDefinition> beanDefinitionMap;
 
     public BeanDefinitionRegistry() {
         beanDefinitionMap = new HashMap<>();

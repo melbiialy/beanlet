@@ -1,4 +1,4 @@
-package org.study.ioc.core;
+package org.study.ioc.beans.defintion;
 
 public class DependencyDescriptor {
     private Class<?> dependencyType;

@@ -1,4 +1,4 @@
-package org.study.ioc.core;
+package org.study.ioc.beans.factory;
 
 public interface BeanFactory {
     Object getBean(String beanName);

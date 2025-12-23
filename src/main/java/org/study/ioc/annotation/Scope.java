@@ -1,6 +1,6 @@
 package org.study.ioc.annotation;
 
-import org.study.ioc.core.BeanScope;
+import org.study.ioc.beans.defintion.BeanScope;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

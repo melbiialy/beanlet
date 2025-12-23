@@ -1,4 +1,4 @@
-package org.study.ioc.core;
+package org.study.ioc.beans.factory;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;

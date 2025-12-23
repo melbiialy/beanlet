@@ -15,3 +15,7 @@ server:
       max: 100
       min-spare: 20
     accept-count: 150
+    servlet:
+      session:
+        timeout: 10m
+        tomcat.uri-encoding: UTF-8
