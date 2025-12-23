@@ -7,7 +7,7 @@ import java.util.List;
 public class BeanDefinition {
     private String beanName;
     private Class<?> beanClass;
-    private Scope scope;
+    private BeanScope beanScope;
     private boolean lazy;
     private boolean primary;
     private Method initMethod;
@@ -24,10 +24,10 @@ public class BeanDefinition {
     public BeanDefinition() {
     }
 
-    public BeanDefinition(String beanName, Class<?> beanClass, Scope scope, boolean lazy, boolean primary, Method initMethod, Method destroyMethod, Method factoryMethod, Object instance, boolean initialized, Constructor<?> constructorToUse, List<DependencyDescriptor> constructorArgumentDescriptors, List<DependencyDescriptor> propertyDescriptors, List<DependencyDescriptor> methodParameterDescriptors, List<DependencyDescriptor> fieldDependencyDescriptors) {
+    public BeanDefinition(String beanName, Class<?> beanClass, BeanScope beanScope, boolean lazy, boolean primary, Method initMethod, Method destroyMethod, Method factoryMethod, Object instance, boolean initialized, Constructor<?> constructorToUse, List<DependencyDescriptor> constructorArgumentDescriptors, List<DependencyDescriptor> propertyDescriptors, List<DependencyDescriptor> methodParameterDescriptors, List<DependencyDescriptor> fieldDependencyDescriptors) {
         this.beanName = beanName;
         this.beanClass = beanClass;
-        this.scope = scope;
+        this.beanScope = beanScope;
         this.lazy = lazy;
         this.primary = primary;
         this.initMethod = initMethod;
@@ -58,12 +58,12 @@ public class BeanDefinition {
         this.beanClass = beanClass;
     }
 
-    public Scope getScope() {
-        return scope;
+    public BeanScope getScope() {
+        return beanScope;
     }
 
-    public void setScope(Scope scope) {
-        this.scope = scope;
+    public void setScope(BeanScope beanScope) {
+        this.beanScope = beanScope;
     }
 
     public boolean isLazy() {
@@ -162,10 +162,10 @@ public class BeanDefinition {
         this.fieldDependencyDescriptors = fieldDependencyDescriptors;
     }
     public boolean isPrototype(){
-        return scope == Scope.PROTOTYPE;
+        return beanScope == BeanScope.PROTOTYPE;
     }
     public boolean isSingleton(){
-        return scope == Scope.SINGLETON;
+        return beanScope == BeanScope.SINGLETON;
     }
     public boolean isFactoryBean(){
         return factoryMethod != null;

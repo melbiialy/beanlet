@@ -1,5 +1,5 @@
 package org.study.ioc.core;
 
-public enum Scope {
+public enum BeanScope {
     SINGLETON,PROTOTYPE
 }
