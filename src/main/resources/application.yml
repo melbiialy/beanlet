@@ -1,0 +1,17 @@
+spring:
+  profiles:
+    active: dev
+  datasource:
+    url:
+      - bialy
+      - awad
+    username: your_username
+    password: your_password
+
+server:
+  port: 8030
+  tomcat:
+    threads:
+      max: 100
+      min-spare: 20
+    accept-count: 150
