@@ -1,6 +1,9 @@
-package org.study.ioc.beans.defintion;
+package org.study.ioc.beans.factory.support;
 
-import java.util.HashMap;
+import org.study.ioc.beans.defintion.BeanDefinition;
+import org.study.ioc.beans.defintion.BeanScope;
+
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -19,5 +22,19 @@ public class BeanDefinitionRegistry {
     }
     public BeanDefinition getBeanDefinition(String beanName){
         return beanDefinitionMap.get(beanName);
+    }
+    public boolean containsBeanDefinition(String beanName){
+        return beanDefinitionMap.containsKey(beanName);
+    }
+
+    public List<String> getBeanNames() {
+        List<String> nonLazy = new ArrayList<>();
+        for (String beanName : beanDefinitionMap.keySet()) {
+            BeanDefinition beanDefinition = beanDefinitionMap.get(beanName);
+            if (!beanDefinition.isLazy()){
+                nonLazy.add(beanName);
+            }
+        }
+        return nonLazy;
     }
 }

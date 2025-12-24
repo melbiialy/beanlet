@@ -25,15 +25,15 @@ public class ReflectionUtils {
         beanDefinition.setBeanClass(clazz);
         if (clazz.isAnnotationPresent(Qualifier.class)){
             Qualifier qualifier = clazz.getAnnotation(Qualifier.class);
-            beanDefinition.setBeanName(qualifier.value());
+            beanDefinition.setBeanQualifiedName(qualifier.value());
         }else {
-            beanDefinition.setBeanName(clazz.getSimpleName());
+            beanDefinition.setBeanQualifiedName(clazz.getSimpleName());
         }
         if (clazz.isAnnotationPresent(Scope.class)){
             Scope scope = clazz.getAnnotation(Scope.class);
-            beanDefinition.setScope(scope.value());
+            beanDefinition.setBeanScope(scope.value());
         }else {
-            beanDefinition.setScope(BeanScope.SINGLETON);
+            beanDefinition.setBeanScope(BeanScope.SINGLETON);
         }
         beanDefinition.setLazy(clazz.isAnnotationPresent(Lazy.class));
         beanDefinition.setPrimary(clazz.isAnnotationPresent(Primary.class));
@@ -42,7 +42,6 @@ public class ReflectionUtils {
         Method destroyMethod = getMethod(clazz, Destroy.class);
         beanDefinition.setDestroyMethod(destroyMethod);
         beanDefinition.setInitialized(false);
-        // todo handle constructor
 
 
 

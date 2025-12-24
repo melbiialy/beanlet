@@ -1,11 +1,12 @@
 package org.study.ioc.componentscan;
 
 import org.study.ioc.annotation.Component;
-import org.study.ioc.beans.defintion.BeanDefinitionRegistry;
+import org.study.ioc.beans.defintion.BeanDefinition;
+import org.study.ioc.beans.factory.support.BeanDefinitionRegistry;
+import org.study.ioc.utils.ReflectionUtils;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
@@ -42,10 +43,8 @@ public class ComponentScanner {
 
             Class<?> clazz = Class.forName(path);
             if (clazz.isAnnotationPresent(Component.class)) {
-                System.out.println(Arrays.toString(clazz.getInterfaces()));
-
-
-
+                BeanDefinition beanDefinition = ReflectionUtils.extractBeanDefinition(clazz);
+                registry.registerBeanDefinition(clazz.getCanonicalName(), beanDefinition);
             }
         }
     }

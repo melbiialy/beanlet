@@ -1,4 +1,4 @@
-package org.study.ioc.beans.factory;
+package org.study.ioc.beans.factory.support;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -16,4 +16,8 @@ public class SingletonBeanRegistry {
     public void registerSingleton(String beanName,Object singletonObject){
         singletonBeans.put(beanName,singletonObject);
     }
+    public boolean containsSingleton(String beanName){
+        return singletonBeans.containsKey(beanName);
+    }
+
 }

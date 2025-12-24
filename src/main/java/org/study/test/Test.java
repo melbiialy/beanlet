@@ -10,5 +10,6 @@ public class Test implements TestInterface{
     @Autowired
     public Test(TestBean testBean) {
         this.testBean = testBean;
+        System.out.println("Test Bean Constructor" + testBean);
     }
 }
