@@ -1,14 +1,11 @@
 package org.study.ioc.annotation;
 
-import org.study.ioc.beans.defintion.BeanScope;
-
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-@Target({ElementType.TYPE})
+@Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
-public @interface Scope {
-    BeanScope value() default BeanScope.SINGLETON;
+public @interface Destroy {
 }
