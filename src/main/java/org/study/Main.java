@@ -1,8 +1,8 @@
 package org.study;
 
+import org.study.ioc.beans.factory.DefaultBeanFactory;
 import org.study.ioc.beans.factory.support.BeanDefinitionRegistry;
 
-import org.study.ioc.beans.factory.DefaultListableBeanFactory;
 import org.study.ioc.componentscan.ComponentScanner;
 
 public class Main {
@@ -10,8 +10,9 @@ public class Main {
         ComponentScanner scanner = new ComponentScanner();
         BeanDefinitionRegistry registry = new BeanDefinitionRegistry();
         scanner.scan(registry);
-        DefaultListableBeanFactory defaultListableBeanFactory = new DefaultListableBeanFactory(registry);
-        defaultListableBeanFactory.preInstantiateSingletons();
+        DefaultBeanFactory beanFactory = new DefaultBeanFactory(registry);
+        beanFactory.preInstantiateSingletons();
+
 
 
 

@@ -1,0 +1,55 @@
+package org.study.ioc.beans.factory;
+
+import org.study.ioc.beans.defintion.BeanDefinition;
+import org.study.ioc.beans.factory.support.BeanDefinitionRegistry;
+import org.study.ioc.beans.factory.support.SingletonBeanRegistry;
+
+import java.lang.reflect.InvocationTargetException;
+
+public  class DefaultBeanFactory implements BeanFactory {
+    private final BeanDefinitionRegistry registry;
+    private final SingletonBeanRegistry singletonBeanRegistry;
+    private final CreationTracker creationTracker;
+    private final BeanCreator beanCreator;
+    private final DependencyInjector dependencyInjector;
+
+    public DefaultBeanFactory(BeanDefinitionRegistry registry) {
+        this.registry = registry;
+        this.singletonBeanRegistry = new SingletonBeanRegistry();
+        this.creationTracker = new CreationTracker();
+        this.beanCreator = new BeanCreator();
+        this.dependencyInjector = new DependencyInjector();
+    }
+
+    @Override
+    public Object getBean(String beanName) throws InvocationTargetException, InstantiationException, IllegalAccessException {
+        BeanDefinition beanDefinition = registry.getBeanDefinition(beanName);
+        if (creationTracker.isUnderCreated(beanName)) {
+            throw new RuntimeException("Circular dependency detected");
+        }
+        if (beanDefinition.isSingleton()) {
+            Object singletonBean = singletonBeanRegistry.getSingleton(beanName);
+            if (singletonBean != null) {
+                return singletonBean;
+            }
+        }
+
+        creationTracker.trackCreation(beanName);
+        Object bean = beanCreator.createBean(beanName, beanDefinition, this);
+        bean = dependencyInjector.injectDependencies(bean, beanDefinition, this);
+        creationTracker.stopTracking(beanName);
+        if (beanDefinition.isSingleton()) {
+            singletonBeanRegistry.registerSingleton(beanName, bean);
+        }
+        return bean;
+    }
+    public void preInstantiateSingletons() {
+        for (String beanName : registry.getBeanNames()) {
+            try {
+                getBean(beanName);
+            } catch (InvocationTargetException | InstantiationException | IllegalAccessException e) {
+                throw new RuntimeException(e);
+            }
+        }
+    }
+}

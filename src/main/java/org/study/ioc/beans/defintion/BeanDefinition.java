@@ -100,4 +100,12 @@ public class BeanDefinition {
     public void setInitialized(boolean initialized) {
         this.initialized = initialized;
     }
+
+    public boolean isSingleton() {
+        return beanScope == BeanScope.SINGLETON;
+    }
+
+    public boolean isProtoType() {
+        return beanScope == BeanScope.PROTOTYPE;
+    }
 }
