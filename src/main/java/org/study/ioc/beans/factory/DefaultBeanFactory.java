@@ -1,8 +1,7 @@
 package org.study.ioc.beans.factory;
 
 import org.study.ioc.beans.defintion.BeanDefinition;
-import org.study.ioc.beans.factory.support.BeanDefinitionRegistry;
-import org.study.ioc.beans.factory.support.SingletonBeanRegistry;
+import org.study.ioc.beans.factory.support.*;
 
 import java.lang.reflect.InvocationTargetException;
 

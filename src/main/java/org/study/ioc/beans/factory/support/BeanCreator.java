@@ -1,6 +1,7 @@
-package org.study.ioc.beans.factory;
+package org.study.ioc.beans.factory.support;
 
 import org.study.ioc.beans.defintion.BeanDefinition;
+import org.study.ioc.beans.factory.DefaultBeanFactory;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;

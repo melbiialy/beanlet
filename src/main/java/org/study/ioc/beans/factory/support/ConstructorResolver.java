@@ -1,4 +1,4 @@
-package org.study.ioc.beans.factory;
+package org.study.ioc.beans.factory.support;
 
 import org.study.ioc.annotation.Autowired;
 
