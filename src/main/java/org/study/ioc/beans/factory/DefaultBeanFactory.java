@@ -47,6 +47,12 @@ public  class DefaultBeanFactory implements BeanFactory {
         bean = dependencyInjector.injectDependencies(bean, beanDefinition, this);
 
         if (beanDefinition.isSingleton()) {
+            if (singletonBeanRegistry.containsEarlyBean(beanName)){
+                singletonBeanRegistry.getEarlyBean(beanName);
+            }
+            if (singletonBeanRegistry.containsFactoryBean(beanName)){
+                singletonBeanRegistry.getBeanFromFactory(beanName);
+            }
             singletonBeanRegistry.registerSingleton(beanName, bean);
         }
         return bean;
