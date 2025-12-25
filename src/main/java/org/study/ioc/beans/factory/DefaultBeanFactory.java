@@ -32,12 +32,21 @@ public  class DefaultBeanFactory implements BeanFactory {
             if (singletonBean != null) {
                 return singletonBean;
             }
+            else if (singletonBeanRegistry.containsEarlyBean(beanName)){
+               return singletonBeanRegistry.getEarlyBean(beanName);
+            }
+            else if (singletonBeanRegistry.containsFactoryBean(beanName)){
+                return singletonBeanRegistry.getBeanFromFactory(beanName);
+            }
         }
 
         creationTracker.trackCreation(beanName);
         Object bean = beanCreator.createBean(beanName, beanDefinition, this);
-        bean = dependencyInjector.injectDependencies(bean, beanDefinition, this);
         creationTracker.stopTracking(beanName);
+        Object finalBean = bean;
+        singletonBeanRegistry.addFactoryBean(beanName, finalBean);
+        bean = dependencyInjector.injectDependencies(bean, beanDefinition, this);
+
         if (beanDefinition.isSingleton()) {
             singletonBeanRegistry.registerSingleton(beanName, bean);
         }
