@@ -14,16 +14,20 @@ public class BeanCreator {
         this.constructorResolver = new ConstructorResolver();
     }
 
-    public Object createBean(String beanName, BeanDefinition beanDefinition, DefaultBeanFactory defaultBeanFactory) throws InvocationTargetException, InstantiationException, IllegalAccessException {
+    public Object instantiateBean(String beanName, BeanDefinition beanDefinition, DefaultBeanFactory defaultBeanFactory) throws InvocationTargetException, InstantiationException, IllegalAccessException {
         Class<?> beanClass = beanDefinition.getBeanClass();
         Constructor<?> constructor = constructorResolver.resolveConstructor(beanClass.getConstructors());
         Parameter [] parameters = constructor.getParameters();
         Object[] args = new Object[parameters.length];
         int i = 0;
         for (Parameter parameter : parameters) {
+
            args[i++] = defaultBeanFactory.getBean(parameter.getType().getCanonicalName());
+
+
         }
         constructor.setAccessible(true);
+        System.out.println(beanDefinition.getBeanClass());
         return constructor.newInstance(args);
     }
 }

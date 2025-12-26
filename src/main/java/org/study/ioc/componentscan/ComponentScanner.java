@@ -7,6 +7,7 @@ import org.study.ioc.utils.ReflectionUtils;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
@@ -26,9 +27,11 @@ public class ComponentScanner {
 
     private void scanDirectory(File file, String basePackage, BeanDefinitionRegistry registry) throws ClassNotFoundException {
         File[] files = file.listFiles();
+
         if (files == null) {
             return;
         }
+        Arrays.sort(files);
         for (File f : files) {
             if (f.isDirectory()) {
                 String newBackage = basePackage.isEmpty()?f.getName():basePackage+"."+f.getName();
@@ -38,6 +41,7 @@ public class ComponentScanner {
             if (!f.getName().endsWith(".class")) {
                 continue;
             }
+            System.out.println(f.getName());
             String beanName = f.getName().replace(".class", "");
             String path = basePackage+"."+beanName;
 

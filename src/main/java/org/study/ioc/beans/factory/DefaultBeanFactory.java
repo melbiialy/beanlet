@@ -4,6 +4,7 @@ import org.study.ioc.beans.defintion.BeanDefinition;
 import org.study.ioc.beans.factory.support.*;
 
 import java.lang.reflect.InvocationTargetException;
+import java.util.List;
 
 public  class DefaultBeanFactory implements BeanFactory {
     private final BeanDefinitionRegistry registry;
@@ -22,37 +23,36 @@ public  class DefaultBeanFactory implements BeanFactory {
 
     @Override
     public Object getBean(String beanName) throws InvocationTargetException, InstantiationException, IllegalAccessException {
+        System.out.println(beanName);
         BeanDefinition beanDefinition = registry.getBeanDefinition(beanName);
+        if (beanDefinition == null) {
+            throw new RuntimeException("No such bean definition: " + beanName);
+        }
+        if (beanDefinition.isSingleton()){
+            Object bean = singletonBeanRegistry.getSingleton(beanName,false);
+            if (bean != null){
+                return bean;
+            }
+        }
         if (creationTracker.isUnderCreated(beanName)) {
-            throw new RuntimeException("Circular dependency detected");
+            System.out.println(beanName + " is under creation");
+            if (beanDefinition.isSingleton()) {
+                Object singletonBean = singletonBeanRegistry.getSingleton(beanName,true);
+                if (singletonBean != null) {
+                    return singletonBean;
+                }
+            }
+            ErrorLogger.reportError(creationTracker.getNames(),beanName);
         }
-        if (beanDefinition.isSingleton()) {
-            Object singletonBean = singletonBeanRegistry.getSingleton(beanName);
-            if (singletonBean != null) {
-                return singletonBean;
-            }
-            else if (singletonBeanRegistry.containsEarlyBean(beanName)){
-               return singletonBeanRegistry.getEarlyBean(beanName);
-            }
-            else if (singletonBeanRegistry.containsFactoryBean(beanName)){
-                return singletonBeanRegistry.getBeanFromFactory(beanName);
-            }
+        creationTracker.markAsUnderCreated(beanName);
+        Object bean = beanCreator.instantiateBean(beanName, beanDefinition, this);
+        if (beanDefinition.isSingleton()){
+            singletonBeanRegistry.registerSingletonFactory(beanName,()->bean);
         }
-
-        creationTracker.trackCreation(beanName);
-        Object bean = beanCreator.createBean(beanName, beanDefinition, this);
-        creationTracker.stopTracking(beanName);
-        Object finalBean = bean;
-        singletonBeanRegistry.addFactoryBean(beanName, finalBean);
-        bean = dependencyInjector.injectDependencies(bean, beanDefinition, this);
+        dependencyInjector.injectDependencies(bean, beanDefinition, this);
+        creationTracker.unmarkAsUnderCreated(beanName);
 
         if (beanDefinition.isSingleton()) {
-            if (singletonBeanRegistry.containsEarlyBean(beanName)){
-                singletonBeanRegistry.getEarlyBean(beanName);
-            }
-            if (singletonBeanRegistry.containsFactoryBean(beanName)){
-                singletonBeanRegistry.getBeanFromFactory(beanName);
-            }
             singletonBeanRegistry.registerSingleton(beanName, bean);
         }
         return bean;

@@ -3,10 +3,7 @@ package org.study.ioc.beans.factory.support;
 import org.study.ioc.beans.defintion.BeanDefinition;
 import org.study.ioc.beans.defintion.BeanScope;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class BeanDefinitionRegistry {
@@ -14,7 +11,7 @@ public class BeanDefinitionRegistry {
     private final Map<String, Set<String>> typeToNameCache;
 
     public BeanDefinitionRegistry() {
-        beanDefinitionMap = new ConcurrentHashMap<>();
+        beanDefinitionMap = new LinkedHashMap<>();
         typeToNameCache = new ConcurrentHashMap<>();
     }
     public void registerBeanDefinition(String beanName,BeanDefinition beanDefinition){
@@ -31,10 +28,12 @@ public class BeanDefinitionRegistry {
         List<String> nonLazy = new ArrayList<>();
         for (String beanName : beanDefinitionMap.keySet()) {
             BeanDefinition beanDefinition = beanDefinitionMap.get(beanName);
+            System.out.println(beanName);
             if (!beanDefinition.isLazy()){
                 nonLazy.add(beanName);
             }
         }
+
         return nonLazy;
     }
 }

@@ -1,6 +1,6 @@
 package org.study.ioc.beans.factory.support;
 
-import org.study.ioc.beans.factory.BeanFactory;
+
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -17,38 +17,32 @@ public class SingletonBeanRegistry {
         earlySingletonObjects = new ConcurrentHashMap<>();
         singletonFactories = new ConcurrentHashMap<>();
     }
-
-    public Object getSingleton(String beanName){
-        return singletonBeans.get(beanName);
+    public Object getSingleton(String beanName,boolean allowEarlyReference){
+        if (singletonBeans.containsKey(beanName)){
+            return singletonBeans.get(beanName);
+        }
+        if (earlySingletonObjects.containsKey(beanName) && allowEarlyReference){
+            return earlySingletonObjects.get(beanName);
+        }
+        if (singletonFactories.containsKey(beanName) && allowEarlyReference){
+            Object singletonObject = singletonFactories.get(beanName).get();
+            earlySingletonObjects.put(beanName,singletonObject);
+            singletonFactories.remove(beanName);
+            return singletonObject;
+        }
+        return null;
     }
-    public void registerSingleton(String beanName,Object singletonObject){
-        singletonBeans.put(beanName,singletonObject);
-    }
-    public boolean containsSingleton(String beanName){
-        return singletonBeans.containsKey(beanName);
-    }
-
-
-    public boolean containsEarlyBean(String beanName) {
-        return earlySingletonObjects.containsKey(beanName);
-    }
-
-    public Object getEarlyBean(String beanName) {
-        return earlySingletonObjects.get(beanName);
-    }
-
-    public boolean containsFactoryBean(String beanName) {
-        return singletonFactories.containsKey(beanName);
-    }
-
-    public Object getBeanFromFactory(String beanName) {
-        Object bean = singletonFactories.get(beanName).get();
+    public void registerSingleton(String beanName,Object bean){
+        earlySingletonObjects.remove(beanName);
         singletonFactories.remove(beanName);
-        earlySingletonObjects.put(beanName, bean);
-        return bean;
+        singletonBeans.put(beanName,bean);
+    }
+    public void registerSingletonFactory(String beanName,Supplier<Object> singletonFactory){
+        singletonFactories.put(beanName,singletonFactory);
+    }
+    public void addEarlySingletonObject(String beanName,Object singletonObject){
+        earlySingletonObjects.put(beanName,singletonObject);
+        singletonFactories.remove(beanName);
     }
 
-    public void addFactoryBean(String beanName, Object o) {
-        singletonFactories.put(beanName, () -> o);
-    }
 }
