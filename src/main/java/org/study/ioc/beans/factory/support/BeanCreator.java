@@ -27,7 +27,6 @@ public class BeanCreator {
 
         }
         constructor.setAccessible(true);
-        System.out.println(beanDefinition.getBeanClass());
         return constructor.newInstance(args);
     }
 }

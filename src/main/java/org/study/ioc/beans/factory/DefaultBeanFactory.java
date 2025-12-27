@@ -4,7 +4,6 @@ import org.study.ioc.beans.defintion.BeanDefinition;
 import org.study.ioc.beans.factory.support.*;
 
 import java.lang.reflect.InvocationTargetException;
-import java.util.List;
 
 public  class DefaultBeanFactory implements BeanFactory {
     private final BeanDefinitionRegistry registry;
@@ -23,7 +22,6 @@ public  class DefaultBeanFactory implements BeanFactory {
 
     @Override
     public Object getBean(String beanName) throws InvocationTargetException, InstantiationException, IllegalAccessException {
-        System.out.println(beanName);
         BeanDefinition beanDefinition = registry.getBeanDefinition(beanName);
         if (beanDefinition == null) {
             throw new RuntimeException("No such bean definition: " + beanName);
@@ -35,7 +33,6 @@ public  class DefaultBeanFactory implements BeanFactory {
             }
         }
         if (creationTracker.isUnderCreated(beanName)) {
-            System.out.println(beanName + " is under creation");
             if (beanDefinition.isSingleton()) {
                 Object singletonBean = singletonBeanRegistry.getSingleton(beanName,true);
                 if (singletonBean != null) {

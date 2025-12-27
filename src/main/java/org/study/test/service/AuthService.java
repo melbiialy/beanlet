@@ -1,10 +1,10 @@
-package org.study.test;
+package org.study.test.service;
 
 import org.study.ioc.annotation.Autowired;
 import org.study.ioc.annotation.Component;
 
 @Component
-public class C {
+public class AuthService {
     @Autowired
-    public B a;
+    private userService userService;
 }

@@ -41,7 +41,6 @@ public class ComponentScanner {
             if (!f.getName().endsWith(".class")) {
                 continue;
             }
-            System.out.println(f.getName());
             String beanName = f.getName().replace(".class", "");
             String path = basePackage+"."+beanName;
 

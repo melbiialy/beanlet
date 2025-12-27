@@ -28,7 +28,6 @@ public class BeanDefinitionRegistry {
         List<String> nonLazy = new ArrayList<>();
         for (String beanName : beanDefinitionMap.keySet()) {
             BeanDefinition beanDefinition = beanDefinitionMap.get(beanName);
-            System.out.println(beanName);
             if (!beanDefinition.isLazy()){
                 nonLazy.add(beanName);
             }
