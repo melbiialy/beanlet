@@ -6,6 +6,7 @@ import org.study.ioc.beans.factory.support.BeanDefinitionRegistry;
 import org.study.ioc.utils.ReflectionUtils;
 
 import java.io.File;
+import java.lang.classfile.Interfaces;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -48,6 +49,13 @@ public class ComponentScanner {
             if (clazz.isAnnotationPresent(Component.class)) {
                 BeanDefinition beanDefinition = ReflectionUtils.extractBeanDefinition(clazz);
                 registry.registerBeanDefinition(clazz.getCanonicalName(), beanDefinition);
+                Class<?>[] interfaces = clazz.getInterfaces();
+                for (Class<?> anInterface : interfaces) {
+                    if (!anInterface.getCanonicalName().endsWith("Object")) {
+                        registry.addTypeInjectionCache(anInterface.getName(), clazz.getCanonicalName());
+                    }
+                }
+
             }
         }
     }

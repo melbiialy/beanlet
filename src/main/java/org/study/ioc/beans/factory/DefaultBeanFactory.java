@@ -22,9 +22,10 @@ public  class DefaultBeanFactory implements BeanFactory {
 
     @Override
     public Object getBean(String beanName) throws InvocationTargetException, InstantiationException, IllegalAccessException {
+
         BeanDefinition beanDefinition = registry.getBeanDefinition(beanName);
-        if (beanDefinition == null) {
-            throw new RuntimeException("No such bean definition: " + beanName);
+        if (beanDefinition == null){
+            throw new IllegalArgumentException("No bean named '" + beanName + "' is defined");
         }
         if (beanDefinition.isSingleton()){
             Object bean = singletonBeanRegistry.getSingleton(beanName,false);
@@ -54,6 +55,13 @@ public  class DefaultBeanFactory implements BeanFactory {
         }
         return bean;
     }
+
+    @Override
+    public Object getQualifiedBean(String beanName, String value) throws InvocationTargetException, InstantiationException, IllegalAccessException {
+        String qualifiedBeanName = registry.getTypeMatchBeanDefinition(beanName,value);
+        return getBean(qualifiedBeanName);
+    }
+
     public void preInstantiateSingletons() {
         for (String beanName : registry.getBeanNames()) {
             try {

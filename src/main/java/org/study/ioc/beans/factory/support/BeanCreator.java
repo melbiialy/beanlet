@@ -1,5 +1,6 @@
 package org.study.ioc.beans.factory.support;
 
+import org.study.ioc.annotation.Qualifier;
 import org.study.ioc.beans.defintion.BeanDefinition;
 import org.study.ioc.beans.factory.DefaultBeanFactory;
 
@@ -21,10 +22,16 @@ public class BeanCreator {
         Object[] args = new Object[parameters.length];
         int i = 0;
         for (Parameter parameter : parameters) {
+            if (!parameter.getType().isInterface()) {
+                args[i++] = defaultBeanFactory.getBean(parameter.getType().getCanonicalName());
+            }else {
+                String qualifier = null;
+                if (parameter.isAnnotationPresent(Qualifier.class)){
+                    qualifier = parameter.getAnnotation(Qualifier.class).value();
+                }
+                args[i++] = defaultBeanFactory.getQualifiedBean(parameter.getType().getCanonicalName(), qualifier);
 
-           args[i++] = defaultBeanFactory.getBean(parameter.getType().getCanonicalName());
-
-
+            }
         }
         constructor.setAccessible(true);
         return constructor.newInstance(args);

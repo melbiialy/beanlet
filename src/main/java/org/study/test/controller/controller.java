@@ -9,6 +9,5 @@ public class controller {
     @Autowired
     private userService userService;
     public void test(){
-        userService.test();
     }
 }

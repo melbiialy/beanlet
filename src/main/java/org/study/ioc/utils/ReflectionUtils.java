@@ -42,13 +42,6 @@ public class ReflectionUtils {
         Method destroyMethod = getMethod(clazz, Destroy.class);
         beanDefinition.setDestroyMethod(destroyMethod);
         beanDefinition.setInitialized(false);
-
-
-
-
-
-
-
         return beanDefinition;
     }
 

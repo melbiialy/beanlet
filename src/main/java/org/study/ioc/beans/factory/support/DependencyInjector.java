@@ -16,6 +16,10 @@ public class DependencyInjector {
         Field[] fields = beanClass.getDeclaredFields();
         for (Field field : fields) {
             if (field.isAnnotationPresent(Autowired.class)){
+                if (field.getType().isInterface()){
+                    initializeDependency(bean, defaultBeanFactory, field);
+                    continue;
+                }
                     Object injectedBean = defaultBeanFactory.getBean(field.getType().getCanonicalName());
                     field.setAccessible(true);
                     field.set(bean, injectedBean);
@@ -27,6 +31,14 @@ public class DependencyInjector {
                 Class<?>[] parameterTypes = method.getParameterTypes();
                 Object[] args = new Object[parameterTypes.length];
                 for (int i = 0; i < parameterTypes.length; i++) {
+                    if (parameterTypes[i].isInterface()){
+                        String qualifier = null;
+                        if (method.getParameters()[i].isAnnotationPresent(org.study.ioc.annotation.Qualifier.class)){
+                            qualifier = method.getParameters()[i].getAnnotation(org.study.ioc.annotation.Qualifier.class).value();
+                        }
+                        args[i] = defaultBeanFactory.getQualifiedBean(parameterTypes[i].getCanonicalName(), qualifier);
+                        continue;
+                    }
                     args[i] = defaultBeanFactory.getBean(parameterTypes[i].getCanonicalName());
                 }
                 method.setAccessible(true);
@@ -35,5 +47,16 @@ public class DependencyInjector {
             }
         }
 
+    }
+
+    private static void initializeDependency(Object bean, DefaultBeanFactory defaultBeanFactory, Field field) throws InvocationTargetException, InstantiationException, IllegalAccessException {
+        String qualifier = null;
+        if (field.isAnnotationPresent(org.study.ioc.annotation.Qualifier.class)){
+            qualifier = field.getAnnotation(org.study.ioc.annotation.Qualifier.class).value();
+        }
+        Object injectedBean = defaultBeanFactory.getQualifiedBean(field.getType().getCanonicalName(), qualifier);
+        field.setAccessible(true);
+        field.set(bean, injectedBean);
+        return;
     }
 }
