@@ -1,7 +1,5 @@
 package org.study.ioc.beans.factory.support.scope;
 
-import org.study.ioc.beans.factory.support.SingletonBeanRegistry;
-
 public class SingletonScope implements Scope {
     private final SingletonBeanRegistry singletonBeanRegistry;
     public SingletonScope(SingletonBeanRegistry singletonBeanRegistry) {

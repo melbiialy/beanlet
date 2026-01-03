@@ -1,4 +1,4 @@
-package org.study.ioc.beans.factory.support;
+package org.study.ioc.beans.factory.support.scope;
 
 
 

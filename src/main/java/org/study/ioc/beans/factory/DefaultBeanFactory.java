@@ -2,6 +2,7 @@ package org.study.ioc.beans.factory;
 
 import org.study.ioc.beans.defintion.BeanDefinition;
 import org.study.ioc.beans.factory.support.*;
+import org.study.ioc.beans.factory.support.scope.SingletonBeanRegistry;
 
 import java.lang.reflect.InvocationTargetException;
 
