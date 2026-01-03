@@ -15,7 +15,7 @@ public class BeanCreator {
         this.constructorResolver = new ConstructorResolver();
     }
 
-    public Object instantiateBean(String beanName, BeanDefinition beanDefinition, DefaultBeanFactory defaultBeanFactory) throws InvocationTargetException, InstantiationException, IllegalAccessException {
+    public Object instantiateBean(BeanDefinition beanDefinition, DefaultBeanFactory defaultBeanFactory) throws InvocationTargetException, InstantiationException, IllegalAccessException {
         Class<?> beanClass = beanDefinition.getBeanClass();
         Constructor<?> constructor = constructorResolver.resolveConstructor(beanClass.getConstructors());
         Parameter [] parameters = constructor.getParameters();

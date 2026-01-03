@@ -43,7 +43,7 @@ public  class DefaultBeanFactory implements BeanFactory {
             ErrorLogger.reportError(creationTracker.getNames(),beanName);
         }
         creationTracker.markAsUnderCreated(beanName);
-        Object bean = beanCreator.instantiateBean(beanName, beanDefinition, this);
+        Object bean = beanCreator.instantiateBean(beanDefinition, this);
         if (beanDefinition.isSingleton()){
             singletonBeanRegistry.registerSingletonFactory(beanName,()->bean);
         }
