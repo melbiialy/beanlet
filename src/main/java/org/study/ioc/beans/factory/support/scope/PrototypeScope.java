@@ -1,6 +1,6 @@
 package org.study.ioc.beans.factory.support.scope;
 
-public class ProtoTypeScope implements Scope {
+public class PrototypeScope implements Scope {
     @Override
     public Object get(String beanName) {
         return null;
