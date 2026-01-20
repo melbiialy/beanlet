@@ -4,9 +4,6 @@ import org.study.ioc.beans.factory.DefaultBeanFactory;
 import org.study.ioc.beans.factory.support.BeanDefinitionRegistry;
 
 import org.study.ioc.componentscan.ComponentScanner;
-import org.study.test.service.AuthService;
-import org.study.test.service.userService;
-
 import java.lang.reflect.InvocationTargetException;
 
 public class Main {
