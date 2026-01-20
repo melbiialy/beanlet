@@ -1,4 +1,4 @@
-package org.study.exception;
+package org.study.beanlet.exception;
 
 public class InitializationException extends RuntimeException {
     public InitializationException(String message) {

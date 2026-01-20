@@ -1,9 +1,6 @@
 package org.study;
 
-import org.study.beanlet.beans.factory.DefaultBeanFactory;
-import org.study.beanlet.beans.factory.support.BeanDefinitionRegistry;
 
-import org.study.beanlet.core.scanning.ComponentScanner;
 import org.study.beanlet.context.ApplicationContext;
 import org.study.beanlet.context.DefaultApplicationContext;
 

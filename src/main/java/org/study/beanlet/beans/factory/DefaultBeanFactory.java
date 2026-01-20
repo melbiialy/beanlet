@@ -1,5 +1,7 @@
 package org.study.beanlet.beans.factory;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.study.beanlet.beans.definition.BeanDefinition;
 import org.study.beanlet.beans.definition.BeanScope;
 import org.study.beanlet.beans.factory.support.*;
@@ -16,6 +18,7 @@ public  class DefaultBeanFactory implements BeanFactory {
     private final BeanCreator beanCreator;
     private final DependencyInjector dependencyInjector;
     private final PropertySource properties;
+    private final Logger logger = (Logger) LoggerFactory.getLogger(DefaultBeanFactory.class);
 
     public DefaultBeanFactory(BeanDefinitionRegistry registry,PropertySource properties) {
         this.registry = registry;
@@ -28,6 +31,7 @@ public  class DefaultBeanFactory implements BeanFactory {
 
     @Override
     public Object getBean(String beanName) throws InvocationTargetException, InstantiationException, IllegalAccessException {
+        logger.trace("Getting bean: {}", beanName);
         BeanDefinition beanDefinition = registry.getBeanDefinition(beanName);
         if (beanDefinition == null) {
             throw new RuntimeException("No bean found for name: " + beanName);
@@ -45,15 +49,18 @@ public  class DefaultBeanFactory implements BeanFactory {
     }
 
     private void populateBean(Object bean, BeanDefinition beanDefinition) throws InvocationTargetException, InstantiationException, IllegalAccessException {
+        logger.trace("Populating bean: {}", bean.getClass().getCanonicalName());
         dependencyInjector.fieldsInjection(bean,beanDefinition,this);
         dependencyInjector.methodsInjection(bean,beanDefinition,this);
         creationTracker.unmarkAsUnderCreated(bean.getClass().getCanonicalName());
+        logger.trace("Bean {} fully initialized.", bean.getClass().getCanonicalName());
         beanDefinition.getInitMethod().invoke(bean);
         scopeRegistry.getScope(beanDefinition.getBeanScope()).register(bean.getClass().getCanonicalName(), bean);
 
     }
 
     private Object createBean(String beanName, BeanDefinition beanDefinition) throws InvocationTargetException, InstantiationException, IllegalAccessException {
+        logger.trace("Creating bean: {}", beanName);
         creationTracker.markAsUnderCreated(beanName);
         Object bean = beanCreator.instantiateBean(beanDefinition,this);
         scopeRegistry.getScope(beanDefinition.getBeanScope()).putFactory(beanName, bean);
@@ -64,13 +71,18 @@ public  class DefaultBeanFactory implements BeanFactory {
         Scope scope = scopeRegistry.getScope(beanScope);
         Object bean = scope.get(beanName);
         if (bean != null) {
+            logger.trace("Bean {} found in scope {}", beanName, beanScope);
             return bean;
         }
         if (creationTracker.isUnderCreated(beanName)) {
+            logger.trace("Bean {} is still being created", beanName);
             bean = scope.getEarlyReference(beanName);
+            logger.trace("Getting early reference for bean {}: {}", beanName, bean);
             if (bean != null) {
+                logger.trace("Bean {} found in scope {}", beanName, beanScope);
                 return bean;
             }
+            logger.error("Circular dependency detected for bean: {}", beanName);
             ErrorLogger.reportError(creationTracker.getNames(), beanName);
         }
         return null;
@@ -78,6 +90,7 @@ public  class DefaultBeanFactory implements BeanFactory {
 
     @Override
     public Object getQualifiedBean(String beanName, String value) throws InvocationTargetException, InstantiationException, IllegalAccessException {
+        logger.trace("Getting qualified bean: {} with qualifier: {}", beanName, value);
         String qualifiedBeanName = registry.getTypeMatchBeanDefinition(beanName,value);
         return getBean(qualifiedBeanName);
     }

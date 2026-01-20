@@ -1,7 +1,12 @@
 package org.study.beanlet.context;
 
-import org.study.exception.BeanScanningException;
-import org.study.exception.InitializationException;
+
+import ch.qos.logback.classic.Logger;
+import ch.qos.logback.classic.Level;
+
+import org.slf4j.LoggerFactory;
+import org.study.beanlet.exception.BeanScanningException;
+import org.study.beanlet.exception.InitializationException;
 import org.study.beanlet.beans.factory.BeanFactory;
 import org.study.beanlet.beans.factory.DefaultBeanFactory;
 import org.study.beanlet.beans.factory.support.BeanDefinitionRegistry;
@@ -12,10 +17,33 @@ import org.study.beanlet.env.YamlPropertySourceLoader;
 
 
 import java.lang.reflect.InvocationTargetException;
+import java.sql.Time;
+import java.util.Timer;
+
 
 public class DefaultApplicationContext implements ApplicationContext{
     
     private BeanFactory beanFactory;
+    private final Level DEFAULT_LEVEL = Level.INFO;
+    private  PropertySource properties;
+    private Logger rootLogger;
+
+    public DefaultApplicationContext() {
+        properties = getPropertySource();
+        rootLogger = (Logger) LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
+        configureLoggingLevel();
+
+    }
+
+    private void configureLoggingLevel() {
+        if (properties.getProperty("logging.level") != null) {
+            String levelStr = properties.getProperty("logging.level");
+            Level level = Level.toLevel(levelStr, DEFAULT_LEVEL);
+            rootLogger.setLevel(level);
+        } else {
+            rootLogger.setLevel(DEFAULT_LEVEL);
+        }
+    }
 
     @Override
     public Object getBean(String beanName) throws InvocationTargetException, InstantiationException, IllegalAccessException {
@@ -29,9 +57,14 @@ public class DefaultApplicationContext implements ApplicationContext{
 
     @Override
     public void refresh() {
-        PropertySource properties = getPropertySource();
+        long start = System.currentTimeMillis();
+        rootLogger.info("Refreshing application context");
+        rootLogger.info("Scanning packages:");
         BeanDefinitionRegistry registry = getBeanDefinitionRegistry(properties);
+        rootLogger.info("Found {} beans",registry.getBeanNames().size());
+        rootLogger.info("Bean scanning took {} ms",System.currentTimeMillis()-start);
         beanFactory = new DefaultBeanFactory(registry,properties);
+        rootLogger.info("Bean factory initialized successfully in {} ms",System.currentTimeMillis()-start);
         preInitializeBeans(registry);
     }
 
