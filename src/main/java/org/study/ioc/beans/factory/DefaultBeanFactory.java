@@ -5,7 +5,6 @@ import org.study.ioc.beans.defintion.BeanScope;
 import org.study.ioc.beans.factory.support.*;
 import org.study.ioc.beans.factory.support.scope.Scope;
 import org.study.ioc.beans.factory.support.scope.ScopeRegistry;
-import org.study.ioc.beans.factory.support.scope.SingletonBeanRegistry;
 
 import java.lang.reflect.InvocationTargetException;
 
@@ -37,13 +36,23 @@ public  class DefaultBeanFactory implements BeanFactory {
             return bean;
         }
         bean = createBean(beanName, beanDefinition);
+        populateBean(bean,beanDefinition);
 
         return bean;
     }
 
+    private void populateBean(Object bean, BeanDefinition beanDefinition) throws InvocationTargetException, InstantiationException, IllegalAccessException {
+        dependencyInjector.fieldsInjection(bean,beanDefinition,this);
+        dependencyInjector.methodsInjection(bean,beanDefinition,this);
+        scopeRegistry.getScope(beanDefinition.getBeanScope()).register(beanDefinition.getBeanQualifiedName(), bean);
+
+    }
+
     private Object createBean(String beanName, BeanDefinition beanDefinition) throws InvocationTargetException, InstantiationException, IllegalAccessException {
         creationTracker.markAsUnderCreated(beanName);
-        return beanCreator.instantiateBean(beanDefinition,this);
+        Object bean = beanCreator.instantiateBean(beanDefinition,this);
+        scopeRegistry.getScope(beanDefinition.getBeanScope()).putFactory(beanName, bean);
+        return bean;
     }
 
     private Object doGetBean(String beanName, BeanScope beanScope) {

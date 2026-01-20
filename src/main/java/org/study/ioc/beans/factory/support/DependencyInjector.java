@@ -9,22 +9,24 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 public class DependencyInjector {
-
-
-    public void injectDependencies(Object bean, BeanDefinition beanDefinition, DefaultBeanFactory defaultBeanFactory) throws InvocationTargetException, InstantiationException, IllegalAccessException {
+    public void fieldsInjection(Object bean, BeanDefinition beanDefinition, DefaultBeanFactory defaultBeanFactory) throws InvocationTargetException, InstantiationException, IllegalAccessException {
         Class<?> beanClass = beanDefinition.getBeanClass();
         Field[] fields = beanClass.getDeclaredFields();
         for (Field field : fields) {
             if (field.isAnnotationPresent(Autowired.class)){
-                if (field.getType().isInterface()){
+                if (field.getType().isInterface()) {
                     initializeDependency(bean, defaultBeanFactory, field);
                     continue;
                 }
-                    Object injectedBean = defaultBeanFactory.getBean(field.getType().getCanonicalName());
-                    field.setAccessible(true);
-                    field.set(bean, injectedBean);
+                Object injectedBean = defaultBeanFactory.getBean(field.getType().getCanonicalName());
+                field.setAccessible(true);
+                field.set(bean, injectedBean);
             }
+
         }
+    }
+    public void methodsInjection(Object bean, BeanDefinition beanDefinition, DefaultBeanFactory defaultBeanFactory) throws InvocationTargetException, InstantiationException, IllegalAccessException {
+        Class<?> beanClass = beanDefinition.getBeanClass();
         Method [] methods = beanClass.getDeclaredMethods();
         for (Method method : methods) {
             if (method.isAnnotationPresent(Autowired.class)){
