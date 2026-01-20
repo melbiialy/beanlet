@@ -1,5 +1,7 @@
 package org.study.ioc.context;
 
+import org.study.exception.BeanScanningException;
+import org.study.exception.InitializationException;
 import org.study.ioc.beans.factory.BeanFactory;
 import org.study.ioc.beans.factory.DefaultBeanFactory;
 import org.study.ioc.beans.factory.support.BeanDefinitionRegistry;
@@ -26,7 +28,7 @@ public class DefaultApplicationContext implements ApplicationContext{
     }
 
     @Override
-    public void refresh() throws ClassNotFoundException {
+    public void refresh() {
         PropertySource properties = getPropertySource();
         BeanDefinitionRegistry registry = getBeanDefinitionRegistry(properties);
         beanFactory = new DefaultBeanFactory(registry,properties);
@@ -38,20 +40,25 @@ public class DefaultApplicationContext implements ApplicationContext{
             try {
                 getBean(beanName);
             } catch (InvocationTargetException | InstantiationException | IllegalAccessException e) {
-                throw new RuntimeException(e);
+                throw new InitializationException(e.getMessage());
             }
         }
     }
 
-    private static BeanDefinitionRegistry getBeanDefinitionRegistry(PropertySource properties) throws ClassNotFoundException {
+    private static BeanDefinitionRegistry getBeanDefinitionRegistry(PropertySource properties){
         ComponentScanner componentScanner = new ComponentScanner();
         String basePackage = properties.getProperty("spring.main.base-package");
         if (basePackage != null) {
             componentScanner.setBasePackage(basePackage);
         }
         BeanDefinitionRegistry registry = new BeanDefinitionRegistry();
-        componentScanner.scan(registry);
-        return registry;
+        try {
+            componentScanner.scan(registry);
+            return registry;
+        } catch (ClassNotFoundException e) {
+            throw new BeanScanningException(e.getMessage());
+
+        }
     }
 
     private static PropertySource getPropertySource() {
