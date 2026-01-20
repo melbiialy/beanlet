@@ -54,7 +54,9 @@ public  class DefaultBeanFactory implements BeanFactory {
         dependencyInjector.methodsInjection(bean,beanDefinition,this);
         creationTracker.unmarkAsUnderCreated(bean.getClass().getCanonicalName());
         logger.trace("Bean {} fully initialized.", bean.getClass().getCanonicalName());
-        beanDefinition.getInitMethod().invoke(bean);
+        if (beanDefinition.getInitMethod() != null) {
+            beanDefinition.getInitMethod().invoke(bean);
+        }
         scopeRegistry.getScope(beanDefinition.getBeanScope()).register(bean.getClass().getCanonicalName(), bean);
 
     }

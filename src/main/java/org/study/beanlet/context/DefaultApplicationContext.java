@@ -64,8 +64,8 @@ public class DefaultApplicationContext implements ApplicationContext{
         rootLogger.info("Found {} beans",registry.getBeanNames().size());
         rootLogger.info("Bean scanning took {} ms",System.currentTimeMillis()-start);
         beanFactory = new DefaultBeanFactory(registry,properties);
-        rootLogger.info("Bean factory initialized successfully in {} ms",System.currentTimeMillis()-start);
         preInitializeBeans(registry);
+        rootLogger.info("Bean factory initialized successfully in {} ms",System.currentTimeMillis()-start);
     }
 
     private void preInitializeBeans(BeanDefinitionRegistry registry) {

@@ -1,21 +1,2 @@
-spring:
-  profiles:
-    active: dev
-  datasource:
-    url:
-      - bialy
-      - awad
-    username: your_username
-    password: your_password
-
-server:
-  port: 8030
-  tomcat:
-    threads:
-      max: 100
-      min-spare: 20
-    accept-count: 150
-    servlet:
-      session:
-        timeout: 10m
-        tomcat.uri-encoding: UTF-8
+logging:
+  level: TRACE
