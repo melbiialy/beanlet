@@ -14,6 +14,7 @@ import org.study.beanlet.core.scanning.ComponentScanner;
 import org.study.beanlet.env.PropertySource;
 import org.study.beanlet.env.PropertySourceLoader;
 import org.study.beanlet.env.YamlPropertySourceLoader;
+import org.study.beanlet.logging.LoggerConfig;
 
 
 import java.lang.reflect.InvocationTargetException;
@@ -39,9 +40,9 @@ public class DefaultApplicationContext implements ApplicationContext{
         if (properties.getProperty("logging.level") != null) {
             String levelStr = properties.getProperty("logging.level");
             Level level = Level.toLevel(levelStr, DEFAULT_LEVEL);
-            rootLogger.setLevel(level);
+            LoggerConfig.setupLogger(level);
         } else {
-            rootLogger.setLevel(DEFAULT_LEVEL);
+            LoggerConfig.setupLogger(DEFAULT_LEVEL);
         }
     }
 
