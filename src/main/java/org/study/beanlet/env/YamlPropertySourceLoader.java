@@ -13,8 +13,7 @@ public class YamlPropertySourceLoader implements PropertySourceLoader{
         PropertySource propertySource = new PropertySource(location,null);
         Yaml yaml = new Yaml();
         InputStream inputStream = getClass().getClassLoader().getResourceAsStream(location);
-         Map<String,Object> yamlData = yaml.load(inputStream);
-        System.out.println(yamlData.get("spring"));
+        Map<String,Object> yamlData = yaml.load(inputStream);
 
          Map<String ,String> properties = flattenYaml("",yamlData);
          propertySource.setProperties(properties);
