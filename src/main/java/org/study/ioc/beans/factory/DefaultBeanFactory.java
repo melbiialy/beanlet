@@ -5,6 +5,7 @@ import org.study.ioc.beans.defintion.BeanScope;
 import org.study.ioc.beans.factory.support.*;
 import org.study.ioc.beans.factory.support.scope.Scope;
 import org.study.ioc.beans.factory.support.scope.ScopeRegistry;
+import org.study.ioc.property.PropertySource;
 
 import java.lang.reflect.InvocationTargetException;
 
@@ -14,13 +15,15 @@ public  class DefaultBeanFactory implements BeanFactory {
     private final CreationTracker creationTracker;
     private final BeanCreator beanCreator;
     private final DependencyInjector dependencyInjector;
+    private final PropertySource properties;
 
-    public DefaultBeanFactory(BeanDefinitionRegistry registry) {
+    public DefaultBeanFactory(BeanDefinitionRegistry registry,PropertySource properties) {
         this.registry = registry;
         this.scopeRegistry = new ScopeRegistry();
         this.creationTracker = new CreationTracker();
         this.beanCreator = new BeanCreator();
         this.dependencyInjector = new DependencyInjector();
+        this.properties = properties;
     }
 
     @Override
@@ -44,7 +47,9 @@ public  class DefaultBeanFactory implements BeanFactory {
     private void populateBean(Object bean, BeanDefinition beanDefinition) throws InvocationTargetException, InstantiationException, IllegalAccessException {
         dependencyInjector.fieldsInjection(bean,beanDefinition,this);
         dependencyInjector.methodsInjection(bean,beanDefinition,this);
-        scopeRegistry.getScope(beanDefinition.getBeanScope()).register(beanDefinition.getBeanQualifiedName(), bean);
+        creationTracker.unmarkAsUnderCreated(bean.getClass().getCanonicalName());
+        beanDefinition.getInitMethod().invoke(bean);
+        scopeRegistry.getScope(beanDefinition.getBeanScope()).register(bean.getClass().getCanonicalName(), bean);
 
     }
 
@@ -77,13 +82,4 @@ public  class DefaultBeanFactory implements BeanFactory {
         return getBean(qualifiedBeanName);
     }
 
-    public void preInstantiateSingletons() {
-        for (String beanName : registry.getBeanNames()) {
-            try {
-                getBean(beanName);
-            } catch (InvocationTargetException | InstantiationException | IllegalAccessException e) {
-                throw new RuntimeException(e);
-            }
-        }
-    }
 }

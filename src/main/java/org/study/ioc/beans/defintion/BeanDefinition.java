@@ -1,8 +1,6 @@
 package org.study.ioc.beans.defintion;
 
-import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
-import java.util.List;
 
 public class BeanDefinition {
     private String beanQualifiedName;

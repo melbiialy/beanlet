@@ -1,4 +1,7 @@
 package org.study.ioc.context;
 
-public interface ApplicationContext {
+import org.study.ioc.beans.factory.BeanFactory;
+
+public interface ApplicationContext extends BeanFactory {
+    void refresh() throws ClassNotFoundException;
 }
