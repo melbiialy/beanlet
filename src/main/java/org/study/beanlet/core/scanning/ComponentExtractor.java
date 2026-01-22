@@ -1,0 +1,28 @@
+package org.study.beanlet.core.scanning;
+
+import org.study.beanlet.annotation.Component;
+import org.study.beanlet.beans.definition.BeanDefinition;
+import org.study.beanlet.beans.definition.BeanDefinitionBuilder;
+import org.study.beanlet.core.util.ReflectionUtils;
+
+import java.util.List;
+
+public class ComponentExtractor implements Extractor{
+    @Override
+    public List<BeanDefinition> extract(Class<?> clazz) {
+        BeanDefinitionBuilder db = new BeanDefinitionBuilder();
+        db.beanClass(clazz);
+        db.scope(ReflectionUtils.getBeanScope(clazz));
+        db.beanQualifiedName(ReflectionUtils.getBeanQualifiedName(clazz));
+        db.lazy(ReflectionUtils.isLazy(clazz));
+        db.primary(ReflectionUtils.isPrimary(clazz));
+        db.initMethod(ReflectionUtils.getInitMethod(clazz));
+        db.destroyMethod(ReflectionUtils.getDestroyMethod(clazz));
+        return List.of(db.build());
+    }
+
+    @Override
+    public boolean support(Class<?> clazz) {
+        return clazz.isAnnotationPresent(Component.class);
+    }
+}
