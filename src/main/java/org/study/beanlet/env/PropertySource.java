@@ -1,5 +1,7 @@
 package org.study.beanlet.env;
 
+import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 
 public class PropertySource {
@@ -18,6 +20,7 @@ public class PropertySource {
     public String getProperty(String key){
         return properties.get(key);
     }
+
     public void setName(String name) {
         this.name = name;
     }
@@ -35,5 +38,11 @@ public class PropertySource {
     }
     public void clear(){
         properties.clear();
+    }
+
+    public List<String> getAll(String s) {
+        return properties.keySet().stream().filter(key -> key.startsWith(s))
+                .map(properties::get)
+                .toList();
     }
 }

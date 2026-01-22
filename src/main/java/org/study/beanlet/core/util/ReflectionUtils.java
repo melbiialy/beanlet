@@ -1,13 +1,12 @@
 package org.study.beanlet.core.util;
 
 import org.study.beanlet.annotation.*;
-import org.study.beanlet.beans.definition.BeanDefinition;
-import org.study.beanlet.beans.definition.BeanScope;
-import org.study.beanlet.beans.definition.DependencyDescriptor;
 
-import java.io.File;
+import org.study.beanlet.beans.definition.BeanScope;
+
+
+
 import java.lang.annotation.Annotation;
-import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
@@ -20,32 +19,34 @@ public class ReflectionUtils {
     public static Class<?> loadClass(String className) throws ClassNotFoundException {
         return Class.forName(className,true,getClassLoader());
     }
-    public static BeanDefinition extractBeanDefinition(Class<?> clazz){
-        BeanDefinition beanDefinition = new BeanDefinition();
-        beanDefinition.setBeanClass(clazz);
-        if (clazz.isAnnotationPresent(Qualifier.class)){
-            Qualifier qualifier = clazz.getAnnotation(Qualifier.class);
-            beanDefinition.setBeanQualifiedName(qualifier.value());
-        }else {
-            beanDefinition.setBeanQualifiedName(clazz.getSimpleName());
-        }
+    public static BeanScope getBeanScope(Class<?> clazz){
         if (clazz.isAnnotationPresent(Scope.class)){
             Scope scope = clazz.getAnnotation(Scope.class);
-            beanDefinition.setBeanScope(scope.value());
+            return scope.value();
         }else {
-            beanDefinition.setBeanScope(BeanScope.SINGLETON);
+            return BeanScope.SINGLETON;
         }
-        beanDefinition.setLazy(clazz.isAnnotationPresent(Lazy.class));
-        beanDefinition.setPrimary(clazz.isAnnotationPresent(Primary.class));
-        Method initMethod = getMethod(clazz,PostConstruct.class);
-        beanDefinition.setInitMethod(initMethod);
-        Method destroyMethod = getMethod(clazz, Destroy.class);
-        beanDefinition.setDestroyMethod(destroyMethod);
-        beanDefinition.setInitialized(false);
-        return beanDefinition;
     }
-
-
+    public static String getBeanQualifiedName(Class<?> clazz){
+        if (clazz.isAnnotationPresent(Qualifier.class)){
+            Qualifier qualifier = clazz.getAnnotation(Qualifier.class);
+            return qualifier.value();
+        }else {
+            return clazz.getSimpleName();
+        }
+    }
+    public static boolean isLazy(Class<?> clazz){
+        return clazz.isAnnotationPresent(Lazy.class);
+    }
+    public static boolean isPrimary(Class<?> clazz){
+        return clazz.isAnnotationPresent(Primary.class);
+    }
+    public static Method getInitMethod(Class<?> clazz){
+        return getMethod(clazz,PostConstruct.class);
+    }
+    public static Method getDestroyMethod(Class<?> clazz) {
+        return getMethod(clazz, Destroy.class);
+    }
     private static Method getMethod(Class<?> clazz, Class<? extends Annotation> annotation) {
         Method[] declaredMethods = clazz.getDeclaredMethods();
         for (Method declaredMethod : declaredMethods) {
@@ -54,5 +55,15 @@ public class ReflectionUtils {
             }
         }
         return null;
+    }
+    public static List<Method> getMethods(Class<?> clazz, Class<? extends Annotation> annotation) {
+        List<Method> methods = new ArrayList<>();
+        Method[] declaredMethods = clazz.getDeclaredMethods();
+        for (Method declaredMethod : declaredMethods) {
+            if (declaredMethod.isAnnotationPresent(annotation)){
+                methods.add(declaredMethod);
+            }
+        }
+        return methods;
     }
 }
