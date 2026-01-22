@@ -3,7 +3,7 @@ package org.study.beanlet.beans.definition;
 import java.lang.reflect.Method;
 
 public class BeanDefinitionBuilder {
-    private BeanDefinition beanDefinition;
+    private final BeanDefinition beanDefinition;
     public BeanDefinitionBuilder() {
         this.beanDefinition = new BeanDefinition();
     }
@@ -33,6 +33,10 @@ public class BeanDefinitionBuilder {
     }
     public BeanDefinitionBuilder destroyMethod(Method destroyMethod) {
         beanDefinition.setDestroyMethod(destroyMethod);
+        return this;
+    }
+    public BeanDefinitionBuilder factoryMethod(Method factoryMethod) {
+        beanDefinition.setFactoryMethod(factoryMethod);
         return this;
     }
 
