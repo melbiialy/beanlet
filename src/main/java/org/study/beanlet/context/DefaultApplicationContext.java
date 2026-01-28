@@ -80,16 +80,12 @@ public class DefaultApplicationContext implements ApplicationContext{
     }
 
     private static BeanDefinitionRegistry getBeanDefinitionRegistry(PropertySource properties){
-        ComponentScanner componentScanner = new ComponentScanner();
-        String basePackage = properties.getProperty("spring.main.base-package");
-        if (basePackage != null) {
-            componentScanner.setBasePackage(basePackage);
-        }
+        ComponentScanner componentScanner = new ComponentScanner(properties);
         BeanDefinitionRegistry registry = new BeanDefinitionRegistry();
         try {
             componentScanner.scan(registry);
             return registry;
-        } catch (ClassNotFoundException e) {
+        } catch (Exception e) {
             throw new BeanScanningException(e.getMessage());
 
         }
