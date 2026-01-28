@@ -5,21 +5,28 @@ import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.Level;
 
 import org.slf4j.LoggerFactory;
-import org.study.beanlet.exception.BeanScanningException;
-import org.study.beanlet.exception.InitializationException;
 import org.study.beanlet.beans.factory.BeanFactory;
 import org.study.beanlet.beans.factory.DefaultBeanFactory;
 import org.study.beanlet.beans.factory.support.BeanDefinitionRegistry;
-import org.study.beanlet.core.scanning.ComponentScanner;
+import org.study.beanlet.core.scanning.BeanDefinitionExtractor;
+import org.study.beanlet.core.scanning.BeanDefinitionReader;
+import org.study.beanlet.core.scanning.BeanDefinitionSource;
+import org.study.beanlet.core.scanning.BeanScanner;
+import org.study.beanlet.core.scanning.ClassPathBeanScanner;
+import org.study.beanlet.core.scanning.ClassPathScanner;
+import org.study.beanlet.core.scanning.ComponentExtractor;
+import org.study.beanlet.core.scanning.ConfigurationExtractor;
+import org.study.beanlet.core.scanning.FileSystemClassPathScanner;
 import org.study.beanlet.env.PropertySource;
 import org.study.beanlet.env.PropertySourceLoader;
 import org.study.beanlet.env.YamlPropertySourceLoader;
+import org.study.beanlet.exception.BeanScanningException;
+import org.study.beanlet.exception.InitializationException;
 import org.study.beanlet.logging.LoggerConfig;
 
 
 import java.lang.reflect.InvocationTargetException;
-import java.sql.Time;
-import java.util.Timer;
+import java.util.List;
 
 
 public class DefaultApplicationContext implements ApplicationContext{
@@ -80,7 +87,13 @@ public class DefaultApplicationContext implements ApplicationContext{
     }
 
     private static BeanDefinitionRegistry getBeanDefinitionRegistry(PropertySource properties){
-        ComponentScanner componentScanner = new ComponentScanner(properties);
+        ClassPathScanner classPathScanner = new FileSystemClassPathScanner();
+        List<BeanDefinitionExtractor> extractors = List.of(
+                new ComponentExtractor(),
+                new ConfigurationExtractor()
+        );
+        BeanDefinitionSource beanDefinitionReader = new BeanDefinitionReader(extractors);
+        BeanScanner componentScanner = new ClassPathBeanScanner(properties, classPathScanner, beanDefinitionReader);
         BeanDefinitionRegistry registry = new BeanDefinitionRegistry();
         try {
             componentScanner.scan(registry);

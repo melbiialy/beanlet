@@ -10,7 +10,7 @@ import org.study.beanlet.core.util.ReflectionUtils;
 import java.lang.reflect.Method;
 import java.util.List;
 
-public class ConfigurationExtractor implements Extractor{
+public class ConfigurationExtractor implements BeanDefinitionExtractor {
     @Override
     public List<BeanDefinition> extract(Class<?> clazz) {
         List<Method> methods = ReflectionUtils.getMethods(clazz, Bean.class);

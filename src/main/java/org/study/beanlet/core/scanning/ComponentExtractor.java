@@ -7,7 +7,7 @@ import org.study.beanlet.core.util.ReflectionUtils;
 
 import java.util.List;
 
-public class ComponentExtractor implements Extractor{
+public class ComponentExtractor implements BeanDefinitionExtractor {
     @Override
     public List<BeanDefinition> extract(Class<?> clazz) {
         BeanDefinitionBuilder db = new BeanDefinitionBuilder();

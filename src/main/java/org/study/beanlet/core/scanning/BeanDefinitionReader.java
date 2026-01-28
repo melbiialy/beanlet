@@ -4,20 +4,20 @@ import org.study.beanlet.beans.definition.BeanDefinition;
 import org.study.beanlet.beans.factory.support.BeanDefinitionRegistry;
 import org.study.beanlet.core.util.ReflectionUtils;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-public class BeanDefinitionReader implements Reader{
-    private List<Extractor> extractors;
+public class BeanDefinitionReader implements BeanDefinitionSource {
+    private final List<BeanDefinitionExtractor> extractors;
 
-    public BeanDefinitionReader(List<Extractor> extractors) {
+    public BeanDefinitionReader(List<BeanDefinitionExtractor> extractors) {
         this.extractors = extractors;
     }
+
     @Override
     public void readBeanDefinition(Set<Class<?>> classes, BeanDefinitionRegistry registry){
         for (Class<?> clazz : classes) {
-            for (Extractor extractor : extractors) {
+            for (BeanDefinitionExtractor extractor : extractors) {
                 if (extractor.support(clazz)){
                     List<BeanDefinition> beanDefinitions = extractor.extract(clazz);
                     beanDefinitions

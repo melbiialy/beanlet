@@ -6,7 +6,7 @@ import java.io.File;
 import java.net.URL;
 import java.util.Set;
 
-public class ClassScanner implements Loader {
+public class FileSystemClassPathScanner implements ClassPathScanner {
 
     @Override
     public void loadClasses(String packageName, Set<Class<?>> classes) throws ClassNotFoundException {
@@ -45,3 +45,4 @@ public class ClassScanner implements Loader {
         }
     }
 }
+
