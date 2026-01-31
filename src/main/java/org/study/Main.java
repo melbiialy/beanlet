@@ -12,5 +12,6 @@ public class Main {
         ApplicationContext applicationContext = new DefaultApplicationContext();
         applicationContext.refresh();
 
+
     }
 }

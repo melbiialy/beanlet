@@ -99,6 +99,8 @@ public class DefaultApplicationContext implements ApplicationContext{
             componentScanner.scan(registry);
             return registry;
         } catch (Exception e) {
+            e.printStackTrace();
+
             throw new BeanScanningException(e.getMessage());
 
         }

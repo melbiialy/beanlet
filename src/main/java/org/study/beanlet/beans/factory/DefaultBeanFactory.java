@@ -43,21 +43,21 @@ public  class DefaultBeanFactory implements BeanFactory {
             return bean;
         }
         bean = createBean(beanName, beanDefinition);
-        populateBean(bean,beanDefinition);
+        populateBean(beanName, bean, beanDefinition);
 
         return bean;
     }
 
-    private void populateBean(Object bean, BeanDefinition beanDefinition) throws InvocationTargetException, InstantiationException, IllegalAccessException {
-        logger.trace("Populating bean: {}", bean.getClass().getCanonicalName());
+    private void populateBean(String beanName, Object bean, BeanDefinition beanDefinition) throws InvocationTargetException, InstantiationException, IllegalAccessException {
+        logger.trace("Populating bean: {}", beanName);
         dependencyInjector.fieldsInjection(bean,beanDefinition,this);
         dependencyInjector.methodsInjection(bean,beanDefinition,this);
-        creationTracker.unmarkAsUnderCreated(bean.getClass().getCanonicalName());
-        logger.trace("Bean {} fully initialized.", bean.getClass().getCanonicalName());
+        creationTracker.unmarkAsUnderCreated(beanName);
+        logger.trace("Bean {} fully initialized.", beanName);
         if (beanDefinition.getInitMethod() != null) {
             beanDefinition.getInitMethod().invoke(bean);
         }
-        scopeRegistry.getScope(beanDefinition.getBeanScope()).register(bean.getClass().getCanonicalName(), bean);
+        scopeRegistry.getScope(beanDefinition.getBeanScope()).register(beanName, bean);
 
     }
 

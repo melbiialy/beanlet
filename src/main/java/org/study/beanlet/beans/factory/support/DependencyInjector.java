@@ -18,7 +18,7 @@ public class DependencyInjector {
                     initializeDependency(bean, defaultBeanFactory, field);
                     continue;
                 }
-                Object injectedBean = defaultBeanFactory.getBean(field.getType().getCanonicalName());
+                Object injectedBean = defaultBeanFactory.getBean(field.getType().getName());
                 field.setAccessible(true);
                 field.set(bean, injectedBean);
             }
@@ -38,10 +38,10 @@ public class DependencyInjector {
                         if (method.getParameters()[i].isAnnotationPresent(org.study.beanlet.annotation.Qualifier.class)){
                             qualifier = method.getParameters()[i].getAnnotation(org.study.beanlet.annotation.Qualifier.class).value();
                         }
-                        args[i] = defaultBeanFactory.getQualifiedBean(parameterTypes[i].getCanonicalName(), qualifier);
+                        args[i] = defaultBeanFactory.getQualifiedBean(parameterTypes[i].getName(), qualifier);
                         continue;
                     }
-                    args[i] = defaultBeanFactory.getBean(parameterTypes[i].getCanonicalName());
+                    args[i] = defaultBeanFactory.getBean(parameterTypes[i].getName());
                 }
                 method.setAccessible(true);
                 method.invoke(bean, args);

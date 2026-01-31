@@ -23,13 +23,13 @@ public class BeanCreator {
         int i = 0;
         for (Parameter parameter : parameters) {
             if (!parameter.getType().isInterface()) {
-                args[i++] = defaultBeanFactory.getBean(parameter.getType().getCanonicalName());
+                args[i++] = defaultBeanFactory.getBean(parameter.getType().getName());
             }else {
                 String qualifier = null;
                 if (parameter.isAnnotationPresent(Qualifier.class)){
                     qualifier = parameter.getAnnotation(Qualifier.class).value();
                 }
-                args[i++] = defaultBeanFactory.getQualifiedBean(parameter.getType().getCanonicalName(), qualifier);
+                args[i++] = defaultBeanFactory.getQualifiedBean(parameter.getType().getName(), qualifier);
 
             }
         }
