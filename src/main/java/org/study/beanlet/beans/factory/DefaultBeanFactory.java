@@ -5,28 +5,26 @@ import org.slf4j.LoggerFactory;
 import org.study.beanlet.beans.definition.BeanDefinition;
 import org.study.beanlet.beans.definition.BeanScope;
 import org.study.beanlet.beans.factory.support.*;
-import org.study.beanlet.beans.factory.support.scope.Scope;
-import org.study.beanlet.beans.factory.support.scope.ScopeRegistry;
+import org.study.beanlet.beans.factory.support.beanregistry.BeanCacheManager;
 import org.study.beanlet.env.PropertySource;
 
 import java.lang.reflect.InvocationTargetException;
 
 public  class DefaultBeanFactory implements BeanFactory {
     private final BeanDefinitionRegistry registry;
-    private final ScopeRegistry scopeRegistry;
     private final CreationTracker creationTracker;
     private final BeanCreator beanCreator;
     private final DependencyInjector dependencyInjector;
-    private final PropertySource properties;
     private final Logger logger = (Logger) LoggerFactory.getLogger(DefaultBeanFactory.class);
+    private final BeanCacheManager beanCacheManager;
+    private boolean allowEarlyReference = false;
 
-    public DefaultBeanFactory(BeanDefinitionRegistry registry,PropertySource properties) {
+    public DefaultBeanFactory(BeanDefinitionRegistry registry, PropertySource properties, BeanCacheManager beanCacheManager) {
         this.registry = registry;
-        this.scopeRegistry = new ScopeRegistry();
         this.creationTracker = new CreationTracker();
         this.beanCreator = new BeanCreator();
         this.dependencyInjector = new DependencyInjector();
-        this.properties = properties;
+        this.beanCacheManager = beanCacheManager;
     }
 
     @Override
@@ -50,6 +48,7 @@ public  class DefaultBeanFactory implements BeanFactory {
 
     private void populateBean(String beanName, Object bean, BeanDefinition beanDefinition) throws InvocationTargetException, InstantiationException, IllegalAccessException {
         logger.trace("Populating bean: {}", beanName);
+        allowEarlyReference = true;
         dependencyInjector.fieldsInjection(bean,beanDefinition,this);
         dependencyInjector.methodsInjection(bean,beanDefinition,this);
         creationTracker.unmarkAsUnderCreated(beanName);
@@ -57,33 +56,27 @@ public  class DefaultBeanFactory implements BeanFactory {
         if (beanDefinition.getInitMethod() != null) {
             beanDefinition.getInitMethod().invoke(bean);
         }
-        scopeRegistry.getScope(beanDefinition.getBeanScope()).register(beanName, bean);
-
+        beanCacheManager.registerBean(beanName,beanDefinition.getBeanScope(),bean);
     }
 
     private Object createBean(String beanName, BeanDefinition beanDefinition) throws InvocationTargetException, InstantiationException, IllegalAccessException {
+        allowEarlyReference = false;
         logger.trace("Creating bean: {}", beanName);
         creationTracker.markAsUnderCreated(beanName);
         Object bean = beanCreator.instantiateBean(beanDefinition,this);
-        scopeRegistry.getScope(beanDefinition.getBeanScope()).putFactory(beanName, bean);
+        beanCacheManager.registerEarlyFactoryBean(beanName,bean,beanDefinition.getBeanScope());
         return bean;
     }
 
     private Object doGetBean(String beanName, BeanScope beanScope) {
-        Scope scope = scopeRegistry.getScope(beanScope);
-        Object bean = scope.get(beanName);
+        Object bean = beanCacheManager.getBean(beanName, allowEarlyReference,beanScope);
         if (bean != null) {
             logger.trace("Bean {} found in scope {}", beanName, beanScope);
             return bean;
         }
         if (creationTracker.isUnderCreated(beanName)) {
             logger.trace("Bean {} is still being created", beanName);
-            bean = scope.getEarlyReference(beanName);
-            logger.trace("Getting early reference for bean {}: {}", beanName, bean);
-            if (bean != null) {
-                logger.trace("Bean {} found in scope {}", beanName, beanScope);
-                return bean;
-            }
+            logger.trace("Getting early reference for bean {}: {}", beanName, null);
             logger.error("Circular dependency detected for bean: {}", beanName);
             ErrorLogger.reportError(creationTracker.getNames(), beanName);
         }

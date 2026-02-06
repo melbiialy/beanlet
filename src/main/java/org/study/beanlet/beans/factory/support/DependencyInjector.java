@@ -1,6 +1,7 @@
 package org.study.beanlet.beans.factory.support;
 
 import org.study.beanlet.annotation.Autowired;
+import org.study.beanlet.annotation.Value;
 import org.study.beanlet.beans.definition.BeanDefinition;
 import org.study.beanlet.beans.factory.DefaultBeanFactory;
 
@@ -22,7 +23,6 @@ public class DependencyInjector {
                 field.setAccessible(true);
                 field.set(bean, injectedBean);
             }
-
         }
     }
     public void methodsInjection(Object bean, BeanDefinition beanDefinition, DefaultBeanFactory defaultBeanFactory) throws InvocationTargetException, InstantiationException, IllegalAccessException {
@@ -50,6 +50,7 @@ public class DependencyInjector {
         }
 
     }
+
 
     private static void initializeDependency(Object bean, DefaultBeanFactory defaultBeanFactory, Field field) throws InvocationTargetException, InstantiationException, IllegalAccessException {
         String qualifier = null;

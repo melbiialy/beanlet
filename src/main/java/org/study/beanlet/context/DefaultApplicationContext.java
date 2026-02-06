@@ -5,9 +5,13 @@ import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.Level;
 
 import org.slf4j.LoggerFactory;
+import org.study.beanlet.beans.definition.BeanScope;
 import org.study.beanlet.beans.factory.BeanFactory;
 import org.study.beanlet.beans.factory.DefaultBeanFactory;
 import org.study.beanlet.beans.factory.support.BeanDefinitionRegistry;
+import org.study.beanlet.beans.factory.support.beanregistry.BeanCacheManager;
+import org.study.beanlet.beans.factory.support.beanregistry.BeanScopeRegistry;
+import org.study.beanlet.beans.factory.support.beanregistry.SingletonBeanRegistry;
 import org.study.beanlet.core.scanning.BeanDefinitionExtractor;
 import org.study.beanlet.core.scanning.BeanDefinitionReader;
 import org.study.beanlet.core.scanning.BeanDefinitionSource;
@@ -27,6 +31,8 @@ import org.study.beanlet.logging.LoggerConfig;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 
 public class DefaultApplicationContext implements ApplicationContext{
@@ -71,7 +77,9 @@ public class DefaultApplicationContext implements ApplicationContext{
         BeanDefinitionRegistry registry = getBeanDefinitionRegistry(properties);
         rootLogger.info("Found {} beans",registry.getBeanNames().size());
         rootLogger.info("Bean scanning took {} ms",System.currentTimeMillis()-start);
-        beanFactory = new DefaultBeanFactory(registry,properties);
+        Map<BeanScope, BeanScopeRegistry> beanScopeRegistryMap = new ConcurrentHashMap<>();
+        beanScopeRegistryMap.put(BeanScope.SINGLETON,new SingletonBeanRegistry());
+        beanFactory = new DefaultBeanFactory(registry,properties,new BeanCacheManager(beanScopeRegistryMap));
         preInitializeBeans(registry);
         rootLogger.info("Bean factory initialized successfully in {} ms",System.currentTimeMillis()-start);
     }
