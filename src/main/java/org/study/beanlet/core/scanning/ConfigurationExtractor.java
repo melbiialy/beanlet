@@ -20,7 +20,7 @@ public class ConfigurationExtractor implements BeanDefinitionExtractor {
                     .scope(ReflectionUtils.getBeanScope(method.getReturnType()))
                     .beanQualifiedName(ReflectionUtils.getBeanQualifiedName(method.getReturnType()))
                     .lazy(ReflectionUtils.isLazy(method.getReturnType()))
-                    .primary(ReflectionUtils.isPrimary(method.getReturnType()))
+//                    .primary(ReflectionUtils.isPrimary(method.getReturnType()))
                     .factoryMethod(method)
                     .build();
         }).toList();

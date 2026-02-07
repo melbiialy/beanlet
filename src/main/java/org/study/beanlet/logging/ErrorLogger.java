@@ -1,4 +1,4 @@
-package org.study.beanlet.core.util;
+package org.study.beanlet.logging;
 
 import java.util.List;
 
@@ -29,6 +29,5 @@ public class ErrorLogger {
         System.out.println(sb.toString());
 
         System.exit(1);
-        // Throw exception like Spring Boot does
     }
 }

@@ -6,7 +6,7 @@ public class CreationTracker {
     private final Set<String> beansUnderCreation;
 
     public CreationTracker() {
-        this.beansUnderCreation = new LinkedHashSet<>();
+        this.beansUnderCreation = new HashSet<>();
     }
 
 

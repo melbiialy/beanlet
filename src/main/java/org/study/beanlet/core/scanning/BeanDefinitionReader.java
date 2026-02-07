@@ -22,7 +22,7 @@ public class BeanDefinitionReader implements BeanDefinitionSource {
                     List<BeanDefinition> beanDefinitions = extractor.extract(clazz);
                     beanDefinitions
                             .forEach(beanDefinition -> {
-                                registry.registerBeanDefinition(clazz.getName(), beanDefinition);
+                                registry.registerBeanDefinition(beanDefinition.getBeanClass().getName(), beanDefinition);
                                 handleTypeCache(clazz,registry);});
                 }
             }

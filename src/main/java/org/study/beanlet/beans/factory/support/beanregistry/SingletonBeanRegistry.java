@@ -20,19 +20,21 @@ public class SingletonBeanRegistry implements BeanScopeRegistry {
     }
     @Override
     public Object retrieveBean(String beanName, boolean allowEarlyReference){
-        if (allowEarlyReference){
-            Supplier<Object> singletonFactory = singletonFactories.remove(beanName);
-            if (singletonFactory != null){
-                Object singletonObject = singletonFactory.get();
-                earlySingletonObjects.put(beanName, singletonObject);
-                return singletonObject;
-            }
-        }
+
+
         if (singletonBeans.containsKey(beanName)){
             return singletonBeans.get(beanName);
         }
         if (earlySingletonObjects.containsKey(beanName) && allowEarlyReference){
             return earlySingletonObjects.get(beanName);
+        }
+        if (allowEarlyReference) {
+            Supplier<Object> singletonFactory = singletonFactories.remove(beanName);
+            if (singletonFactory != null) {
+                Object singletonObject = singletonFactory.get();
+                earlySingletonObjects.put(beanName, singletonObject);
+                return singletonObject;
+            }
         }
         return null;
     }

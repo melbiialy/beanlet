@@ -43,7 +43,6 @@ public class FileSystemClassPathScanner implements ClassPathScanner {
                 if (className.startsWith(".")){
                     className = className.substring(1);
                 }
-                System.out.println(className);
                 classes.add(ReflectionUtils.loadClass(className));
             }
         }

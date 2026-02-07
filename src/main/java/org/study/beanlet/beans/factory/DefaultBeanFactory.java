@@ -7,7 +7,7 @@ import org.study.beanlet.beans.definition.BeanScope;
 import org.study.beanlet.beans.factory.support.*;
 import org.study.beanlet.beans.factory.support.beancreator.CreatorRegistry;
 import org.study.beanlet.beans.factory.support.beanregistry.BeanCacheManager;
-import org.study.beanlet.core.util.ErrorLogger;
+import org.study.beanlet.logging.ErrorLogger;
 import org.study.beanlet.env.PropertySource;
 
 import java.lang.reflect.InvocationTargetException;
