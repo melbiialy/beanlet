@@ -1,11 +1,14 @@
 package org.study;
 
+import org.study.beanlet.annotation.Bean;
 import org.study.beanlet.annotation.Component;
+import org.study.beanlet.annotation.Configuration;
 
-@Component
+@Configuration
 public class BeanA {
-    private BeanB beanB;
-    public BeanA(BeanB beanB) {
-        this.beanB = beanB;
+    @Bean
+    public BeanB beanB(){
+        return new BeanB();
     }
+
 }
