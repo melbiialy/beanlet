@@ -67,10 +67,6 @@ public class BeanDefinition {
         this.initMethod = initMethod;
     }
 
-    public Method getDestroyMethod() {
-        return destroyMethod;
-    }
-
     public void setDestroyMethod(Method destroyMethod) {
         this.destroyMethod = destroyMethod;
     }
@@ -82,29 +78,4 @@ public class BeanDefinition {
     public void setFactoryMethod(Method factoryMethod) {
         this.factoryMethod = factoryMethod;
     }
-
-    public Object getInstance() {
-        return instance;
-    }
-
-    public void setInstance(Object instance) {
-        this.instance = instance;
-    }
-
-    public boolean isInitialized() {
-        return initialized;
-    }
-
-    public void setInitialized(boolean initialized) {
-        this.initialized = initialized;
-    }
-
-    public boolean isSingleton() {
-        return beanScope == BeanScope.SINGLETON;
-    }
-
-    public boolean isProtoType() {
-        return beanScope == BeanScope.PROTOTYPE;
-    }
-
 }

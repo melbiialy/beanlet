@@ -1,9 +1,9 @@
 package org.study.beanlet.beans.factory.support;
 
 import org.study.beanlet.annotation.Autowired;
-import org.study.beanlet.annotation.Value;
 import org.study.beanlet.beans.definition.BeanDefinition;
 import org.study.beanlet.beans.factory.DefaultBeanFactory;
+import org.study.beanlet.core.util.DependencyResolver;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
@@ -30,19 +30,7 @@ public class DependencyInjector {
         Method [] methods = beanClass.getDeclaredMethods();
         for (Method method : methods) {
             if (method.isAnnotationPresent(Autowired.class)){
-                Class<?>[] parameterTypes = method.getParameterTypes();
-                Object[] args = new Object[parameterTypes.length];
-                for (int i = 0; i < parameterTypes.length; i++) {
-                    if (parameterTypes[i].isInterface()){
-                        String qualifier = null;
-                        if (method.getParameters()[i].isAnnotationPresent(org.study.beanlet.annotation.Qualifier.class)){
-                            qualifier = method.getParameters()[i].getAnnotation(org.study.beanlet.annotation.Qualifier.class).value();
-                        }
-                        args[i] = defaultBeanFactory.getQualifiedBean(parameterTypes[i].getName(), qualifier);
-                        continue;
-                    }
-                    args[i] = defaultBeanFactory.getBean(parameterTypes[i].getName());
-                }
+                Object[] args = DependencyResolver.resolveDependencies(method.getParameters(), defaultBeanFactory);
                 method.setAccessible(true);
                 method.invoke(bean, args);
 
