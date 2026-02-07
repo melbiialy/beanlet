@@ -19,7 +19,7 @@ public  class DefaultBeanFactory implements BeanFactory {
     private final DependencyInjector dependencyInjector;
     private final Logger logger = (Logger) LoggerFactory.getLogger(DefaultBeanFactory.class);
     private final BeanCacheManager beanCacheManager;
-    private ThreadLocal<Boolean> allowEarlyReference;
+    private final ThreadLocal<Boolean> allowEarlyReference;
 
     public DefaultBeanFactory(BeanDefinitionRegistry registry, PropertySource properties, BeanCacheManager beanCacheManager, CreatorRegistry creatorRegistry) {
         this.registry = registry;

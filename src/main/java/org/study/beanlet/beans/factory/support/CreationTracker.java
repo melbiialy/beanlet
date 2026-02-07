@@ -3,27 +3,27 @@ package org.study.beanlet.beans.factory.support;
 import java.util.*;
 
 public class CreationTracker {
-    private final Set<String> beansUnderCreation;
+    private final ThreadLocal<LinkedHashSet<String>> beansUnderCreation;
 
     public CreationTracker() {
-        this.beansUnderCreation = new HashSet<>();
+        this.beansUnderCreation = ThreadLocal.withInitial(LinkedHashSet::new);
     }
 
 
     public boolean isUnderCreated(String beanName) {
-        return beansUnderCreation.contains(beanName);
+        return beansUnderCreation.get().contains(beanName);
     }
 
     public void markAsUnderCreated(String beanName) {
-        beansUnderCreation.add(beanName);
+        beansUnderCreation.get().add(beanName);
     }
 
     public void unmarkAsUnderCreated(String beanName) {
-        beansUnderCreation.remove(beanName);
+        beansUnderCreation.get().remove(beanName);
     }
 
 
     public List<String> getNames() {
-        return new ArrayList<>(beansUnderCreation);
+        return new ArrayList<>(beansUnderCreation.get());
     }
 }
