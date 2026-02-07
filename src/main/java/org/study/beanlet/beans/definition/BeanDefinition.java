@@ -107,6 +107,4 @@ public class BeanDefinition {
         return beanScope == BeanScope.PROTOTYPE;
     }
 
-    public Object getFactoryClass() {
-    }
 }
