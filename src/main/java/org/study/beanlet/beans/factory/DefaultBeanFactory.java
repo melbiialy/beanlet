@@ -27,7 +27,7 @@ public  class DefaultBeanFactory implements BeanFactory {
         this.creatorRegistry = creatorRegistry;
         this.dependencyInjector = new DependencyInjector();
         this.beanCacheManager = beanCacheManager;
-        allowEarlyReference = new ThreadLocal<>();
+        allowEarlyReference = ThreadLocal.withInitial(() -> false);
     }
 
     @Override

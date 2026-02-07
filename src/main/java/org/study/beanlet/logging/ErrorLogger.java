@@ -28,6 +28,6 @@ public class ErrorLogger {
 
         System.out.println(sb.toString());
 
-        System.exit(1);
+        throw new IllegalStateException(sb.toString());
     }
 }
