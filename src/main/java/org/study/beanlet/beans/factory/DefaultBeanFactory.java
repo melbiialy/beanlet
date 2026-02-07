@@ -19,7 +19,7 @@ public  class DefaultBeanFactory implements BeanFactory {
     private final DependencyInjector dependencyInjector;
     private final Logger logger = (Logger) LoggerFactory.getLogger(DefaultBeanFactory.class);
     private final BeanCacheManager beanCacheManager;
-    private boolean allowEarlyReference = false;
+    private ThreadLocal<Boolean> allowEarlyReference;
 
     public DefaultBeanFactory(BeanDefinitionRegistry registry, PropertySource properties, BeanCacheManager beanCacheManager, CreatorRegistry creatorRegistry) {
         this.registry = registry;
@@ -27,6 +27,7 @@ public  class DefaultBeanFactory implements BeanFactory {
         this.creatorRegistry = creatorRegistry;
         this.dependencyInjector = new DependencyInjector();
         this.beanCacheManager = beanCacheManager;
+        allowEarlyReference = new ThreadLocal<>();
     }
 
     @Override
@@ -50,7 +51,7 @@ public  class DefaultBeanFactory implements BeanFactory {
 
     private void populateBean(String beanName, Object bean, BeanDefinition beanDefinition) throws InvocationTargetException, InstantiationException, IllegalAccessException {
         logger.trace("Populating bean: {}", beanName);
-        allowEarlyReference = true;
+        allowEarlyReference.set(true);
         dependencyInjector.fieldsInjection(bean,beanDefinition,this);
         dependencyInjector.methodsInjection(bean,beanDefinition,this);
         creationTracker.unmarkAsUnderCreated(beanName);
@@ -62,7 +63,7 @@ public  class DefaultBeanFactory implements BeanFactory {
     }
 
     private Object createBean(String beanName, BeanDefinition beanDefinition) throws InvocationTargetException, InstantiationException, IllegalAccessException {
-        allowEarlyReference = false;
+        allowEarlyReference.set(false);
         logger.trace("Creating bean: {}", beanName);
         creationTracker.markAsUnderCreated(beanName);
         Object bean = creatorRegistry.createBean(beanDefinition,this);
@@ -71,7 +72,7 @@ public  class DefaultBeanFactory implements BeanFactory {
     }
 
     private Object doGetBean(String beanName, BeanScope beanScope) {
-        Object bean = beanCacheManager.getBean(beanName, allowEarlyReference,beanScope);
+        Object bean = beanCacheManager.getBean(beanName, allowEarlyReference.get(),beanScope);
         if (bean != null) {
             logger.trace("Bean {} found in scope {}", beanName, beanScope);
             return bean;
