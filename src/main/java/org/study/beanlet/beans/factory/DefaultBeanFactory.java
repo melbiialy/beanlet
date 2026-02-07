@@ -5,7 +5,9 @@ import org.slf4j.LoggerFactory;
 import org.study.beanlet.beans.definition.BeanDefinition;
 import org.study.beanlet.beans.definition.BeanScope;
 import org.study.beanlet.beans.factory.support.*;
+import org.study.beanlet.beans.factory.support.beancreator.CreatorRegistry;
 import org.study.beanlet.beans.factory.support.beanregistry.BeanCacheManager;
+import org.study.beanlet.core.util.ErrorLogger;
 import org.study.beanlet.env.PropertySource;
 
 import java.lang.reflect.InvocationTargetException;
@@ -13,16 +15,16 @@ import java.lang.reflect.InvocationTargetException;
 public  class DefaultBeanFactory implements BeanFactory {
     private final BeanDefinitionRegistry registry;
     private final CreationTracker creationTracker;
-    private final BeanCreator beanCreator;
+    private final CreatorRegistry creatorRegistry;
     private final DependencyInjector dependencyInjector;
     private final Logger logger = (Logger) LoggerFactory.getLogger(DefaultBeanFactory.class);
     private final BeanCacheManager beanCacheManager;
     private boolean allowEarlyReference = false;
 
-    public DefaultBeanFactory(BeanDefinitionRegistry registry, PropertySource properties, BeanCacheManager beanCacheManager) {
+    public DefaultBeanFactory(BeanDefinitionRegistry registry, PropertySource properties, BeanCacheManager beanCacheManager, CreatorRegistry creatorRegistry) {
         this.registry = registry;
         this.creationTracker = new CreationTracker();
-        this.beanCreator = new BeanCreator();
+        this.creatorRegistry = creatorRegistry;
         this.dependencyInjector = new DependencyInjector();
         this.beanCacheManager = beanCacheManager;
     }
@@ -63,7 +65,7 @@ public  class DefaultBeanFactory implements BeanFactory {
         allowEarlyReference = false;
         logger.trace("Creating bean: {}", beanName);
         creationTracker.markAsUnderCreated(beanName);
-        Object bean = beanCreator.instantiateBean(beanDefinition,this);
+        Object bean = creatorRegistry.createBean(beanDefinition,this);
         beanCacheManager.registerEarlyFactoryBean(beanName,bean,beanDefinition.getBeanScope());
         return bean;
     }
