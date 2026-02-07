@@ -1,11 +1,11 @@
-package org.study.beanlet.beans.factory.support;
+package org.study.beanlet.core.util;
 
 import org.study.beanlet.annotation.Autowired;
 
 import java.lang.reflect.Constructor;
 
 public class ConstructorResolver {
-    public Constructor<?> resolveConstructor(Constructor<?>[] constructors) {
+    public static Constructor<?> resolveConstructor(Constructor<?>[] constructors) {
         for (Constructor<?> constructor : constructors) {
             if (constructor.isAnnotationPresent(Autowired.class)){
                 return constructor;

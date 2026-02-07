@@ -3,6 +3,7 @@ package org.study.beanlet.beans.factory.support;
 import org.study.beanlet.annotation.Qualifier;
 import org.study.beanlet.beans.definition.BeanDefinition;
 import org.study.beanlet.beans.factory.DefaultBeanFactory;
+import org.study.beanlet.core.util.ConstructorResolver;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;

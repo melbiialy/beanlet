@@ -1,6 +1,7 @@
 package org.study.beanlet.core.scanning;
 
 import org.study.beanlet.annotation.Component;
+import org.study.beanlet.annotation.Configuration;
 import org.study.beanlet.beans.definition.BeanDefinition;
 import org.study.beanlet.beans.definition.BeanDefinitionBuilder;
 import org.study.beanlet.core.util.ReflectionUtils;
@@ -23,6 +24,6 @@ public class ComponentExtractor implements BeanDefinitionExtractor {
 
     @Override
     public boolean support(Class<?> clazz) {
-        return clazz.isAnnotationPresent(Component.class);
+        return clazz.isAnnotationPresent(Component.class)||clazz.isAnnotationPresent(Configuration.class);
     }
 }
