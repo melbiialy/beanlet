@@ -1,6 +1,7 @@
 package org.study.beanlet.core.util;
 
 import org.study.beanlet.annotation.Qualifier;
+import org.study.beanlet.annotation.Value;
 import org.study.beanlet.beans.factory.BeanFactory;
 
 import java.lang.reflect.InvocationTargetException;
@@ -12,6 +13,11 @@ public class DependencyResolver {
         Object[] args = new Object[parameters.length];
         int i = 0;
         for (Parameter parameter : parameters) {
+            if(parameter.isAnnotationPresent(Value.class)){
+                String path = parameter.getAnnotation(Value.class).value();
+                args[i++] = beanFactory.getValue(path);
+                continue;
+            }
             if (!parameter.getType().isInterface()) {
                 args[i++] = beanFactory.getBean(parameter.getType().getName());
             }else {

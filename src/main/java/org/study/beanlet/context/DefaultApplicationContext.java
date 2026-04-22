@@ -74,6 +74,11 @@ public class DefaultApplicationContext implements ApplicationContext{
     }
 
     @Override
+    public Object getValue(String path) {
+        return properties.getProperty(path);
+    }
+
+    @Override
     public void refresh() {
         long start = System.currentTimeMillis();
         rootLogger.info("Refreshing application context");

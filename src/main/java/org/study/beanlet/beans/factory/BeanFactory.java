@@ -7,4 +7,6 @@ public interface BeanFactory {
 
 
     Object getQualifiedBean(String beanName, String value) throws InvocationTargetException, InstantiationException, IllegalAccessException;
+
+    Object getValue(String path);
 }

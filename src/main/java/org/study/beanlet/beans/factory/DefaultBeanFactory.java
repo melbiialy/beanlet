@@ -20,6 +20,7 @@ public  class DefaultBeanFactory implements BeanFactory {
     private final Logger logger = (Logger) LoggerFactory.getLogger(DefaultBeanFactory.class);
     private final BeanCacheManager beanCacheManager;
     private final ThreadLocal<Boolean> allowEarlyReference;
+    private final PropertySource properties;
 
     public DefaultBeanFactory(BeanDefinitionRegistry registry, PropertySource properties, BeanCacheManager beanCacheManager, CreatorRegistry creatorRegistry) {
         this.registry = registry;
@@ -28,6 +29,7 @@ public  class DefaultBeanFactory implements BeanFactory {
         this.dependencyInjector = new DependencyInjector();
         this.beanCacheManager = beanCacheManager;
         allowEarlyReference = ThreadLocal.withInitial(() -> false);
+        this.properties = properties;
     }
 
     @Override
@@ -91,6 +93,11 @@ public  class DefaultBeanFactory implements BeanFactory {
         logger.trace("Getting qualified bean: {} with qualifier: {}", beanName, value);
         String qualifiedBeanName = registry.getTypeMatchBeanDefinition(beanName,value);
         return getBean(qualifiedBeanName);
+    }
+
+    @Override
+    public Object getValue(String path) {
+        return Integer.parseInt(properties.getProperty(path));
     }
 
 }

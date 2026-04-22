@@ -8,4 +8,5 @@ import java.lang.annotation.Target;
 @Target({ElementType.FIELD,ElementType.LOCAL_VARIABLE,ElementType.PARAMETER})
 @Retention(RetentionPolicy.RUNTIME)
 public @interface Value {
+    String value();
 }
