@@ -8,7 +8,7 @@ import org.study.beanlet.annotation.Value;
 @Configuration
 public class BeanA {
     @Bean
-    public BeanB beanB(@Value("name") int name){
+    public BeanB beanB(@Value("${name}") int name){
         System.out.println(name);
         return new BeanB();
     }

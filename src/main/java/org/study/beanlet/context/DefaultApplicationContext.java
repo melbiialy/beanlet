@@ -54,8 +54,8 @@ public class DefaultApplicationContext implements ApplicationContext{
     }
 
     private void configureLoggingLevel() {
-        if (properties.getProperty("logging.level") != null) {
-            String levelStr = properties.getProperty("logging.level");
+        String levelStr = properties.getProperty("${logging.level}");
+        if (levelStr!= null) {
             Level level = Level.toLevel(levelStr, DEFAULT_LEVEL);
             LoggerConfig.setupLogger(level);
         } else {
@@ -74,7 +74,7 @@ public class DefaultApplicationContext implements ApplicationContext{
     }
 
     @Override
-    public Object getValue(String path) {
+    public String  getValue(String path) {
         return properties.getProperty(path);
     }
 

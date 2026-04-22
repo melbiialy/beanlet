@@ -22,8 +22,8 @@ public class ClassPathBeanScanner implements BeanScanner {
     }
 
     private void initPackages(PropertySource propertySource) {
-        if (propertySource.getProperty("beanlet.scan.base-package") != null) {
-            basePackage = propertySource.getProperty("beanlet.scan.base-package");
+        if (propertySource.getProperty("${beanlet.scan.base-package}") != null) {
+            basePackage = propertySource.getProperty("${beanlet.scan.base-package}");
         } else {
             basePackage = DEFAULT_BASE_PACKAGE;
         }

@@ -18,6 +18,16 @@ public class PropertySource {
         return properties;
     }
     public String getProperty(String key){
+
+        key = key.trim();
+//        System.out.println(key);
+        if (!key.startsWith("${") || !key.endsWith("}")){
+            throw new IllegalArgumentException("Invalid property key: " + key);
+        }
+        key = key.substring(2,key.length()-1);
+        if (!properties.containsKey(key)){
+            return null;
+        }
         return properties.get(key);
     }
 

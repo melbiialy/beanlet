@@ -96,8 +96,8 @@ public  class DefaultBeanFactory implements BeanFactory {
     }
 
     @Override
-    public Object getValue(String path) {
-        return Integer.parseInt(properties.getProperty(path));
+    public String getValue(String path) {
+        return properties.getProperty(path);
     }
 
 }
