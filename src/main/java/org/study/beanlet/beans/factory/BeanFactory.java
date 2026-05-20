@@ -2,7 +2,7 @@ package org.study.beanlet.beans.factory;
 
 import java.lang.reflect.InvocationTargetException;
 
-public interface BeanFactory {
+public interface BeanFactory  extends AutoCloseable{
     Object getBean(String beanName) throws InvocationTargetException, InstantiationException, IllegalAccessException;
 
 

@@ -10,9 +10,11 @@ import org.study.beanlet.beans.factory.support.beanregistry.BeanCacheManager;
 import org.study.beanlet.logging.ErrorLogger;
 import org.study.beanlet.env.PropertySource;
 
+import java.io.Closeable;
+import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 
-public  class DefaultBeanFactory implements BeanFactory {
+public  class DefaultBeanFactory implements BeanFactory, AutoCloseable {
     private final BeanDefinitionRegistry registry;
     private final CreationTracker creationTracker;
     private final CreatorRegistry creatorRegistry;
@@ -100,4 +102,27 @@ public  class DefaultBeanFactory implements BeanFactory {
         return properties.getProperty(path);
     }
 
+    @Override
+    public void close() throws IOException {
+        logger.info("Shutting down BeanFactory, destroying singleton beans...");
+        for (String beanName : registry.getBeanNames()) {
+            BeanDefinition beanDefinition = registry.getBeanDefinition(beanName);
+            if (beanDefinition.getBeanScope() != BeanScope.SINGLETON){
+                continue;
+            }
+            if (beanDefinition.getDestroyMethod() == null){
+                continue;
+            }
+            Object bean = beanCacheManager.getBean(beanName,false,beanDefinition.getBeanScope());
+            if (bean == null)continue;
+            try {
+                beanDefinition.getDestroyMethod().invoke(bean);
+                logger.trace("Destroy method invoked on bean: {}", beanName);
+            } catch (InvocationTargetException | IllegalAccessException e) {
+                logger.error("Error invoking destroy method on bean: {}", beanName, e);
+            }
+        }
+
+
+    }
 }

@@ -78,4 +78,7 @@ public class BeanDefinition {
     public void setFactoryMethod(Method factoryMethod) {
         this.factoryMethod = factoryMethod;
     }
+    public Method getDestroyMethod() {
+        return destroyMethod;
+    }
 }

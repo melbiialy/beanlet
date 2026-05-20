@@ -32,6 +32,7 @@ import org.study.beanlet.exception.InitializationException;
 import org.study.beanlet.logging.LoggerConfig;
 
 
+import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
@@ -92,6 +93,13 @@ public class DefaultApplicationContext implements ApplicationContext{
         beanFactory = new DefaultBeanFactory(registry,properties,new BeanCacheManager(beanScopeRegistryMap),creatorRegistry);
         preInitializeBeans(registry);
         rootLogger.info("Bean factory initialized successfully in {} ms",System.currentTimeMillis()-start);
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            try {
+                beanFactory.close();
+            } catch (Exception e) {
+                rootLogger.error("Error during shutdown", e);
+            }
+        }));
     }
 
     private void preInitializeBeans(BeanDefinitionRegistry registry) {
@@ -127,5 +135,10 @@ public class DefaultApplicationContext implements ApplicationContext{
     private static PropertySource getPropertySource() {
         PropertySourceLoader propertySourceLoader = new YamlPropertySourceLoader();
         return propertySourceLoader.loadProperties("application.yml");
+    }
+
+    @Override
+    public void close() throws Exception {
+        beanFactory.close();
     }
 }

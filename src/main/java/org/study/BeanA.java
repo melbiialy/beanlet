@@ -1,9 +1,6 @@
 package org.study;
 
-import org.study.beanlet.annotation.Bean;
-import org.study.beanlet.annotation.Component;
-import org.study.beanlet.annotation.Configuration;
-import org.study.beanlet.annotation.Value;
+import org.study.beanlet.annotation.*;
 
 @Configuration
 public class BeanA {
@@ -12,5 +9,6 @@ public class BeanA {
         System.out.println(name);
         return new BeanB();
     }
+
 
 }
