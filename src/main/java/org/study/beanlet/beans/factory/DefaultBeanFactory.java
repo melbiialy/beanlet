@@ -10,7 +10,6 @@ import org.study.beanlet.beans.factory.support.beanregistry.BeanCacheManager;
 import org.study.beanlet.logging.ErrorLogger;
 import org.study.beanlet.env.PropertySource;
 
-import java.io.Closeable;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 
@@ -19,7 +18,7 @@ public  class DefaultBeanFactory implements BeanFactory, AutoCloseable {
     private final CreationTracker creationTracker;
     private final CreatorRegistry creatorRegistry;
     private final DependencyInjector dependencyInjector;
-    private final Logger logger = (Logger) LoggerFactory.getLogger(DefaultBeanFactory.class);
+    private final Logger logger =  LoggerFactory.getLogger(DefaultBeanFactory.class);
     private final BeanCacheManager beanCacheManager;
     private final ThreadLocal<Boolean> allowEarlyReference;
     private final PropertySource properties;
