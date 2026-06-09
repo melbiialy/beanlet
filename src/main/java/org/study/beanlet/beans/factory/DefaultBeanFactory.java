@@ -40,16 +40,17 @@ public  class DefaultBeanFactory implements BeanFactory, AutoCloseable {
         if (beanDefinition == null) {
             throw new RuntimeException("No bean found for name: " + beanName);
         }
-
-        Object bean = doGetBean(beanName,beanDefinition.getBeanScope());
+        Object bean = doGetBean(beanName, beanDefinition.getBeanScope());
 
         if (bean != null) {
             return bean;
         }
-        bean = createBean(beanName, beanDefinition);
-        populateBean(beanName, bean, beanDefinition);
+        synchronized (beanName.intern()) {
+            bean = createBean(beanName, beanDefinition);
+            populateBean(beanName, bean, beanDefinition);
 
-        return bean;
+            return bean;
+        }
     }
 
     private void populateBean(String beanName, Object bean, BeanDefinition beanDefinition) throws InvocationTargetException, InstantiationException, IllegalAccessException {
