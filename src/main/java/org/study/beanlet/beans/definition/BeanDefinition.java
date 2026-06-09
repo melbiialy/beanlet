@@ -20,8 +20,6 @@ public class BeanDefinition {
     private Method initMethod;
     private Method destroyMethod;
     private Method factoryMethod;
-    private Object instance;
-    private boolean initialized;
 
 
     public BeanDefinition() {

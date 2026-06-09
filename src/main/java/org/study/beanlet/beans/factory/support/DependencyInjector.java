@@ -2,6 +2,7 @@ package org.study.beanlet.beans.factory.support;
 
 import org.study.beanlet.annotation.Autowired;
 import org.study.beanlet.beans.definition.BeanDefinition;
+import org.study.beanlet.beans.factory.BeanFactory;
 import org.study.beanlet.beans.factory.DefaultBeanFactory;
 import org.study.beanlet.core.util.DependencyResolver;
 
@@ -10,7 +11,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 public class DependencyInjector {
-    public void fieldsInjection(Object bean, BeanDefinition beanDefinition, DefaultBeanFactory defaultBeanFactory) throws InvocationTargetException, InstantiationException, IllegalAccessException {
+    public void fieldsInjection(Object bean, BeanDefinition beanDefinition, BeanFactory defaultBeanFactory) throws InvocationTargetException, InstantiationException, IllegalAccessException {
         Class<?> beanClass = beanDefinition.getBeanClass();
         Field[] fields = beanClass.getDeclaredFields();
         for (Field field : fields) {
@@ -25,7 +26,7 @@ public class DependencyInjector {
             }
         }
     }
-    public void methodsInjection(Object bean, BeanDefinition beanDefinition, DefaultBeanFactory defaultBeanFactory) throws InvocationTargetException, InstantiationException, IllegalAccessException {
+    public void methodsInjection(Object bean, BeanDefinition beanDefinition, BeanFactory defaultBeanFactory) throws InvocationTargetException, InstantiationException, IllegalAccessException {
         Class<?> beanClass = beanDefinition.getBeanClass();
         Method [] methods = beanClass.getDeclaredMethods();
         for (Method method : methods) {
@@ -40,7 +41,7 @@ public class DependencyInjector {
     }
 
 
-    private static void initializeDependency(Object bean, DefaultBeanFactory defaultBeanFactory, Field field) throws InvocationTargetException, InstantiationException, IllegalAccessException {
+    private static void initializeDependency(Object bean, BeanFactory defaultBeanFactory, Field field) throws InvocationTargetException, InstantiationException, IllegalAccessException {
         String qualifier = null;
         if (field.isAnnotationPresent(org.study.beanlet.annotation.Qualifier.class)){
             qualifier = field.getAnnotation(org.study.beanlet.annotation.Qualifier.class).value();
@@ -48,6 +49,5 @@ public class DependencyInjector {
         Object injectedBean = defaultBeanFactory.getQualifiedBean(field.getType().getCanonicalName(), qualifier);
         field.setAccessible(true);
         field.set(bean, injectedBean);
-        return;
     }
 }
