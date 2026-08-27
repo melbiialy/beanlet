@@ -20,7 +20,6 @@ public class PropertySource {
     public String getProperty(String key){
 
         key = key.trim();
-//        System.out.println(key);
         if (!key.startsWith("${") || !key.endsWith("}")){
             throw new IllegalArgumentException("Invalid property key: " + key);
         }
