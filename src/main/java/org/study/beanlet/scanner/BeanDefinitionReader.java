@@ -2,7 +2,6 @@ package org.study.beanlet.scanner;
 
 import org.study.beanlet.bean.BeanDefinition;
 import org.study.beanlet.registry.BeanDefinitionRegistry;
-import org.study.beanlet.util.ReflectionUtils;
 
 import java.util.List;
 import java.util.Set;
@@ -22,17 +21,11 @@ public class BeanDefinitionReader implements BeanDefinitionSource {
                     List<BeanDefinition> beanDefinitions = extractor.extract(clazz);
                     beanDefinitions
                             .forEach(beanDefinition -> {
-                                registry.registerBeanDefinition(beanDefinition.getBeanClass().getName(), beanDefinition);
-                                handleTypeCache(clazz,registry);});
+                                registry.registerBeanDefinition(beanDefinition.getBeanClass().getName(), beanDefinition);});
                 }
             }
         }
     }
 
-    private void handleTypeCache(Class<?> clazz, BeanDefinitionRegistry registry) {
-        String [] interfaces = ReflectionUtils.getAllInterfaces(clazz);
-        for (String interfaceName : interfaces) {
-            registry.addTypeInjectionCache(interfaceName, clazz.getName());
-        }
-    }
+
 }

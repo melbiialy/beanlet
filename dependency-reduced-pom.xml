@@ -18,7 +18,7 @@
             <configuration>
               <transformers>
                 <transformer>
-                  <mainClass>org.study.Main</mainClass>
+                  <mainClass>demo.Main</mainClass>
                 </transformer>
               </transformers>
             </configuration>

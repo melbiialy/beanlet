@@ -1,29 +1,55 @@
 package org.study.beanlet.support;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class CreationTracker {
-    private final ThreadLocal<LinkedHashSet<String>> beansUnderCreation;
-
+    private final Map<String,CreationPhase> creationTracker;
     public CreationTracker() {
-        this.beansUnderCreation = ThreadLocal.withInitial(LinkedHashSet::new);
+        creationTracker = new ConcurrentHashMap<>();
+    }
+    public boolean allowEarlyRef(String beanName) {
+        if (!creationTracker.containsKey(beanName)) {
+            return true;
+        }
+        return creationTracker.get(beanName).getAllowEarlyRef();
+    }
+    public boolean isUnderCreationPhase(String beanName) {
+        if (!creationTracker.containsKey(beanName)) {
+            return false;
+        }
+        CreationPhase creationPhase = creationTracker.get(beanName);
+        return creationPhase != CreationPhase.INITIALIZATION;
+    }
+    public List<String> getBeanNames() {
+        return new ArrayList<>(creationTracker.keySet());
+    }
+
+    public void markAsUnderInstantiation(String beanName) {
+        creationTracker.put(beanName,CreationPhase.INSTANTIATION);
+    }
+
+    public void finishInstantiation(String beanName) {
+        creationTracker.put(beanName,CreationPhase.POPULATION);
+    }
+
+    public void finalizeCreationPhase(String beanName) {
+        creationTracker.put(beanName,CreationPhase.INITIALIZATION);
     }
 
 
-    public boolean isUnderCreated(String beanName) {
-        return beansUnderCreation.get().contains(beanName);
-    }
+    public enum CreationPhase{
+        INSTANTIATION(false),
+        POPULATION(true),
+        INITIALIZATION(true);
+        final boolean allowEarlyRef;
 
-    public void markAsUnderCreated(String beanName) {
-        beansUnderCreation.get().add(beanName);
-    }
-
-    public void unmarkAsUnderCreated(String beanName) {
-        beansUnderCreation.get().remove(beanName);
-    }
-
-
-    public List<String> getNames() {
-        return new ArrayList<>(beansUnderCreation.get());
+        public  boolean getAllowEarlyRef() {
+            return allowEarlyRef;
+        }
+        private CreationPhase(boolean allowEarlyRef) {
+            this.allowEarlyRef = allowEarlyRef;
+        }
     }
 }
+

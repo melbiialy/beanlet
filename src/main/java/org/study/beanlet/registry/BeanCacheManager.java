@@ -3,6 +3,7 @@ package org.study.beanlet.registry;
 import org.study.beanlet.bean.BeanScope;
 
 import java.util.Map;
+import java.util.function.Supplier;
 
 public class BeanCacheManager {
     private final Map<BeanScope, BeanScopeRegistry> registryMap;
@@ -24,10 +25,10 @@ public class BeanCacheManager {
         registryMap.get(beanScope).registerBean(beanName, bean);
     }
 
-    public void registerEarlyFactoryBean(String beanName, Object bean, BeanScope beanScope) {
+    public void registerEarlyFactoryBean(String beanName, Supplier<Object> beanSupplier, BeanScope beanScope) {
         if (!registryMap.containsKey(beanScope)){
             return;
         }
-        registryMap.get(beanScope).registerFactory(beanName, () -> bean);
+        registryMap.get(beanScope).registerFactory(beanName, beanSupplier);
     }
 }

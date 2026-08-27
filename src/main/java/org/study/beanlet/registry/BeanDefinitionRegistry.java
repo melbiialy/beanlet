@@ -2,13 +2,15 @@ package org.study.beanlet.registry;
 
 import org.study.beanlet.bean.BeanDefinition;
 import org.study.beanlet.bean.BeanScope;
+import org.study.beanlet.exception.BeanNotFoundException;
+import org.study.beanlet.exception.NoUniqueBeanDefinitionException;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class BeanDefinitionRegistry {
     private final Map<String, BeanDefinition> beanDefinitionMap;
-    private final Map<String, Set<String>> typeToNameCache;
+    private final Map<Class<?>, List<String>> typeToNameCache;
 
     public BeanDefinitionRegistry() {
         beanDefinitionMap = new LinkedHashMap<>();
@@ -36,24 +38,72 @@ public class BeanDefinitionRegistry {
         return nonLazy;
     }
 
-    public void addTypeInjectionCache(String name, String canonicalName) {
-        typeToNameCache.computeIfAbsent(name, k -> new HashSet<>()).add(canonicalName);
-    }
 
-    public String getTypeMatchBeanDefinition(String beanName,String qualifier) {
-        Set<String> candidates = typeToNameCache.get(beanName);
+
+    public String getTypeMatchBeanDefinition(Class<?> dependencyType,String qualifierValue) {
+        List<String> candidates = typeToNameCache.get(dependencyType);
         if (candidates == null) {
-            throw new RuntimeException("No bean found for type: " + beanName);
-        }
-        if (candidates.size() == 1) {
-            return candidates.iterator().next();
-        }
-        for (String candidate : candidates) {
-            BeanDefinition candidateBeanDefinition = getBeanDefinition(candidate);
-            if (candidateBeanDefinition.getBeanQualifiedName().equals(qualifier)) {
-                return candidate;
+
+             candidates = new ArrayList<>();
+            for (String beanName : this.getBeanNames()) {
+                BeanDefinition definition = this.getBeanDefinition(beanName);
+                if (dependencyType.isAssignableFrom(definition.getBeanClass())) {
+                    candidates.add(beanName);
+                }
             }
         }
-        throw new RuntimeException("No unique bean found for type: " + beanName);
+
+        typeToNameCache.put(dependencyType,candidates);
+        if (candidates.isEmpty()) {
+            throw new BeanNotFoundException(
+                    "No bean found matching type: " + dependencyType.getName());
+        }
+
+
+        if (candidates.size() > 1) {
+            if (qualifierValue == null) {
+                throw new NoUniqueBeanDefinitionException(
+                        "Expected a single bean matching type " + dependencyType.getName() +
+                                " but found " + candidates.size() + " candidates: " + candidates +
+                                " — consider using @Qualifier to disambiguate");
+            }
+
+            List<String> qualifiedCandidates = new ArrayList<>();
+            String  primary = null;
+            for (String candidateName : candidates) {
+                BeanDefinition definition = this.getBeanDefinition(candidateName);
+                if (definition.isPrimary()){
+                    if (primary == null) {
+                        primary = candidateName;
+                    }else {
+                        throw new NoUniqueBeanDefinitionException(
+                                "Expected a single bean matching type " + dependencyType.getName() +
+                                        " but found " + candidates.size() + " candidates: " + candidates +
+                                        " — consider using @Qualifier to disambiguate");
+                    }
+                }
+                if (qualifierValue.equals(definition.getBeanQualifiedName()) || qualifierValue.equals(candidateName)) {
+                    qualifiedCandidates.add(candidateName);
+                }
+            }
+            if (primary != null) {
+                return primary;
+            }
+
+            if (qualifiedCandidates.isEmpty()) {
+                throw new BeanNotFoundException(
+                        "No bean matching type " + dependencyType.getName() +
+                                " with qualifier '" + qualifierValue + "' found among candidates: " + candidates);
+            }
+            if (qualifiedCandidates.size() > 1) {
+                throw new NoUniqueBeanDefinitionException(
+                        "Multiple beans matching type " + dependencyType.getName() +
+                                " with qualifier '" + qualifierValue + "': " + qualifiedCandidates);
+            }
+
+            candidates = qualifiedCandidates;
+        }
+
+        return candidates.getFirst();
     }
 }

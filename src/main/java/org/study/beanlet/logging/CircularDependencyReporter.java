@@ -24,6 +24,8 @@ public class CircularDependencyReporter {
         }
         sb.append("└─────┘\n");
 
-        throw new IllegalStateException(sb.toString());
+        System.out.println(sb);
+
+        System.exit(-1);
     }
 }

@@ -10,7 +10,7 @@ import java.lang.reflect.Parameter;
 
 public class DependencyResolver {
 
-    public static Object[] resolveDependencies(Parameter[] parameters, BeanFactory beanFactory) throws InvocationTargetException, InstantiationException, IllegalAccessException {
+    public static Object[] resolveDependencies(Parameter[] parameters, BeanFactory beanFactory) throws Exception {
         Object[] args = new Object[parameters.length];
         int i = 0;
         for (Parameter parameter : parameters) {
@@ -32,7 +32,7 @@ public class DependencyResolver {
                 if (parameter.isAnnotationPresent(Qualifier.class)){
                     qualifier = parameter.getAnnotation(Qualifier.class).value();
                 }
-                args[i++] = beanFactory.getQualifiedBean(parameter.getType().getName(), qualifier);
+                args[i++] = beanFactory.getBeanByType(parameter.getType(), qualifier);
 
             }
         }

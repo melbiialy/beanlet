@@ -6,6 +6,6 @@ import org.study.beanlet.factory.BeanFactory;
 import java.lang.reflect.InvocationTargetException;
 
 public interface BeanCreationStrategy {
-    Object create(BeanDefinition beanDefinition, BeanFactory beanFactory) throws InvocationTargetException, InstantiationException, IllegalAccessException;
+    Object create(BeanDefinition beanDefinition, BeanFactory beanFactory) throws Exception;
     boolean support(BeanDefinition beanDefinition);
 }

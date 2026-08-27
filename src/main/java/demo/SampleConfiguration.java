@@ -2,13 +2,14 @@ package demo;
 
 import org.study.beanlet.annotation.*;
 
-@Configuration
+@Component
 public class SampleConfiguration {
-    @Bean
-    public SampleBean beanB(@Value("${name}") int name){
-        System.out.println(name);
-        return new SampleBean();
+    private final SampleBean  sampleBean;
+    public SampleConfiguration(SampleBean sampleBean) {
+        this.sampleBean = sampleBean;
+        System.out.println(sampleBean);
     }
+
 
 
 }

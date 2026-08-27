@@ -2,49 +2,46 @@ package org.study.beanlet.factory;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.study.beanlet.exception.BeanNotFoundException;
 import org.study.beanlet.processor.BeanPostProcessor;
-import org.study.beanlet.processor.BeanPostProcessorRegistry;
 import org.study.beanlet.bean.BeanDefinition;
 import org.study.beanlet.bean.BeanScope;
+import org.study.beanlet.processor.InstantiationAwareBeanPostProcessor;
+import org.study.beanlet.processor.SmartInstantiationAwareBeanPostProcessor;
 import org.study.beanlet.registry.BeanDefinitionRegistry;
 import org.study.beanlet.support.CreationTracker;
-import org.study.beanlet.support.DependencyInjector;
-import org.study.beanlet.instantiation.BeanCreationStrategyResolver;
 import org.study.beanlet.registry.BeanCacheManager;
 import org.study.beanlet.logging.CircularDependencyReporter;
 import org.study.beanlet.env.PropertySource;
+import org.study.beanlet.support.DependencyResolver;
 
-import java.io.IOException;
+import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.util.List;
 
 public  class DefaultBeanFactory implements BeanFactory, AutoCloseable {
     private final BeanDefinitionRegistry registry;
     private final CreationTracker creationTracker;
-    private final BeanCreationStrategyResolver creatorRegistry;
-    private final DependencyInjector dependencyInjector;
     private final Logger logger =  LoggerFactory.getLogger(DefaultBeanFactory.class);
     private final BeanCacheManager beanCacheManager;
-    private final ThreadLocal<Boolean> allowEarlyReference;
     private final PropertySource properties;
-//    private final BeanPostProcessorRegistry  beanPostProcessorRegistry;
+    List<BeanPostProcessor> beanPostProcessors;
 
-    public DefaultBeanFactory(BeanDefinitionRegistry registry, PropertySource properties, BeanCacheManager beanCacheManager, BeanCreationStrategyResolver creatorRegistry) {
+    public DefaultBeanFactory(BeanDefinitionRegistry registry, PropertySource properties, BeanCacheManager beanCacheManager, List<BeanPostProcessor> beanPostProcessors) {
         this.registry = registry;
-//        this.beanPostProcessorRegistry = beanPostProcessorRegistry;
         this.creationTracker = new CreationTracker();
-        this.creatorRegistry = creatorRegistry;
-        this.dependencyInjector = new DependencyInjector();
         this.beanCacheManager = beanCacheManager;
-        allowEarlyReference = ThreadLocal.withInitial(() -> false);
         this.properties = properties;
+        this.beanPostProcessors = beanPostProcessors;
     }
 
     @Override
-    public Object getBean(String beanName) throws InvocationTargetException, InstantiationException, IllegalAccessException {
+    public Object getBean(String beanName) throws Exception {
         logger.trace("Getting bean: {}", beanName);
         BeanDefinition beanDefinition = registry.getBeanDefinition(beanName);
         if (beanDefinition == null) {
-            throw new RuntimeException("No bean found for name: " + beanName);
+            throw new BeanNotFoundException("No bean found for name: " + beanName);
         }
 
         Object bean = doGetBean(beanName,beanDefinition.getBeanScope());
@@ -54,65 +51,118 @@ public  class DefaultBeanFactory implements BeanFactory, AutoCloseable {
         }
         bean = createBean(beanName, beanDefinition);
         populateBean(beanName, bean, beanDefinition);
-
+        initializeBean(bean,beanName,beanDefinition);
         return bean;
     }
 
-    private void populateBean(String beanName, Object bean, BeanDefinition beanDefinition) throws InvocationTargetException, InstantiationException, IllegalAccessException {
-        logger.trace("Populating bean: {}", beanName);
-        allowEarlyReference.set(true);
-        dependencyInjector.fieldsInjection(bean,beanDefinition,this);
-        dependencyInjector.methodsInjection(bean,beanDefinition,this);
-        creationTracker.unmarkAsUnderCreated(beanName);
-        logger.trace("Bean {} fully initialized.", beanName);
-        if (beanDefinition.getInitMethod() != null) {
-            beanDefinition.getInitMethod().invoke(bean);
+    private void initializeBean(Object bean, String beanName, BeanDefinition beanDefinition) throws InvocationTargetException, IllegalAccessException {
+        Method method = beanDefinition.getInitMethod();
+        if (method == null) {
+            return;
         }
+        method.setAccessible(true);
+        try {
+            method.invoke(bean);
+        } catch (IllegalAccessException | InvocationTargetException e) {
+            throw e;
+        }
+    }
+
+    private void populateBean(String beanName, Object bean, BeanDefinition beanDefinition)  {
+        for (BeanPostProcessor beanPostProcessor : beanPostProcessors) {
+            if (beanPostProcessor instanceof SmartInstantiationAwareBeanPostProcessor siabp ) {
+                if (siabp.postProcessAfterInitialization(bean,beanName)){
+                    creationTracker.finalizeCreationPhase(beanName);
+                    beanCacheManager.registerBean(beanName,beanDefinition.getBeanScope(),bean);
+                    return;
+                }
+            }
+        }
+        for (BeanPostProcessor beanPostProcessor : beanPostProcessors) {
+            if (beanPostProcessor instanceof InstantiationAwareBeanPostProcessor istp ) {
+                istp.postProcessAfterInitialization(bean,beanName);
+            }
+        }
+        creationTracker.finalizeCreationPhase(beanName);
         beanCacheManager.registerBean(beanName,beanDefinition.getBeanScope(),bean);
     }
 
-    private Object createBean(String beanName, BeanDefinition beanDefinition) throws InvocationTargetException, InstantiationException, IllegalAccessException {
-        allowEarlyReference.set(false);
+    private Object createBean(String beanName, BeanDefinition beanDefinition) throws Exception {
         logger.trace("Creating bean: {}", beanName);
-        creationTracker.markAsUnderCreated(beanName);
-        Object bean = creatorRegistry.createBean(beanDefinition,this);
-        beanCacheManager.registerEarlyFactoryBean(beanName,bean,beanDefinition.getBeanScope());
-//        BeanPostProcessor[] postProcessors = beanPostProcessorRegistry.getBeanPostProcessors();
-//        for (BeanPostProcessor beanPostProcessor : postProcessors) {
-//            bean = beanPostProcessor.postProcessBeforeInitialization(bean,beanName);
-//        }
+        creationTracker.markAsUnderInstantiation(beanName);
+
+        for (BeanPostProcessor beanPostProcessor : beanPostProcessors) {
+            if (beanPostProcessor instanceof InstantiationAwareBeanPostProcessor bpp) {
+                Object shortCircuit = bpp.postProcessBeforeInitialization(beanDefinition.getBeanClass(), beanName);
+                if (shortCircuit != null) {
+                    return shortCircuit;
+                }
+            }
+        }
+        Constructor<?> constructor = null;
+        for (BeanPostProcessor bp : beanPostProcessors) {
+            if (bp instanceof SmartInstantiationAwareBeanPostProcessor smart) {
+                Constructor<?> candidate = smart.determineCandidateConstructor(beanDefinition.getBeanClass(), beanName);
+                if (candidate != null) {
+                    constructor = candidate;
+                    break;
+                }
+            }
+        }
+        if (constructor == null) {
+            constructor = beanDefinition.getBeanClass().getDeclaredConstructor();
+        }
+        Object[] args = DependencyResolver.resolveDependencies(constructor.getParameters(), this);
+        constructor.setAccessible(true);
+        Object bean = constructor.newInstance(args);
+        beanCacheManager.registerEarlyFactoryBean(beanName,()->resolveEarlyRef(bean,beanName),beanDefinition.getBeanScope());
+
+        creationTracker.finishInstantiation(beanName);
         return bean;
     }
 
+    private Object resolveEarlyRef(Object bean, String beanName) {
+        Object exposedObject = bean;
+
+        for (BeanPostProcessor bp : beanPostProcessors) {
+            if (bp instanceof InstantiationAwareBeanPostProcessor iabp) {
+                exposedObject = iabp.getEarlyBeanReference(exposedObject, beanName);
+            }
+        }
+
+        return exposedObject;
+    }
+
     private Object doGetBean(String beanName, BeanScope beanScope) {
-        Object bean = beanCacheManager.getBean(beanName, allowEarlyReference.get(),beanScope);
+        Object bean = beanCacheManager.getBean(beanName,creationTracker.allowEarlyRef(beanName),beanScope);
         if (bean != null) {
             logger.trace("Bean {} found in scope {}", beanName, beanScope);
             return bean;
         }
-        if (creationTracker.isUnderCreated(beanName)) {
+        if (creationTracker.isUnderCreationPhase(beanName)) {
             logger.trace("Bean {} is still being created", beanName);
             logger.trace("Getting early reference for bean {}: {}", beanName, null);
             logger.error("Circular dependency detected for bean: {}", beanName);
-            CircularDependencyReporter.reportError(creationTracker.getNames(), beanName);
+            CircularDependencyReporter.reportError(creationTracker.getBeanNames(), beanName);
         }
         return null;
     }
 
-    @Override
-    public Object getQualifiedBean(String beanName, String value) throws InvocationTargetException, InstantiationException, IllegalAccessException {
-        logger.trace("Getting qualified bean: {} with qualifier: {}", beanName, value);
-        String qualifiedBeanName = registry.getTypeMatchBeanDefinition(beanName,value);
-        return getBean(qualifiedBeanName);
-    }
 
     @Override
     public String getValue(String path) {
         return properties.getProperty(path);
     }
 
+
     @Override
-    public void close() throws IOException {
+    public Object getBeanByType(Class<?> dependencyType, String qualifierValue) throws Exception {
+       String beanName = registry.getTypeMatchBeanDefinition(dependencyType, qualifierValue);
+       return getBean(beanName);
+    }
+
+    @Override
+    public void close()  {
         logger.info("Shutting down BeanFactory, destroying singleton beans...");
         for (String beanName : registry.getBeanNames()) {
             BeanDefinition beanDefinition = registry.getBeanDefinition(beanName);
