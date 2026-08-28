@@ -54,9 +54,7 @@ public class DefaultApplicationContext implements ApplicationContext, Closeable 
         configureLoggingLevel();
     }
 
-    // -------------------------------------------------------------------------
-    // ApplicationContext
-    // -------------------------------------------------------------------------
+
 
     @Override
     public void refresh() throws Exception {
@@ -81,9 +79,7 @@ public class DefaultApplicationContext implements ApplicationContext, Closeable 
 
     }
 
-    // -------------------------------------------------------------------------
-    // Additional public API
-    // -------------------------------------------------------------------------
+
 
     public String getValue(String path) {
         return properties.getProperty(path);
@@ -96,9 +92,7 @@ public class DefaultApplicationContext implements ApplicationContext, Closeable 
         return beanFactory.getBeanByType(dependencyType, qualifier);
     }
 
-    // -------------------------------------------------------------------------
-    // Closeable
-    // -------------------------------------------------------------------------
+
 
     @Override
     public void close() {
@@ -110,10 +104,6 @@ public class DefaultApplicationContext implements ApplicationContext, Closeable 
             }
         }
     }
-
-    // -------------------------------------------------------------------------
-    // Private helpers
-    // -------------------------------------------------------------------------
 
     private void configureLoggingLevel() {
         String levelStr = properties.getProperty(LOG_LEVEL_PROPERTY);
