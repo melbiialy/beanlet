@@ -5,10 +5,10 @@ import org.study.beanlet.annotation.Value;
 import org.study.beanlet.factory.BeanFactory;
 import org.study.beanlet.env.ValueResolver;
 
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Parameter;
 
 public class DependencyResolver {
+
 
     public static Object[] resolveDependencies(Parameter[] parameters, BeanFactory beanFactory) throws Exception {
         Object[] args = new Object[parameters.length];
@@ -26,7 +26,7 @@ public class DependencyResolver {
                 continue;
             }
             if (!parameter.getType().isInterface()) {
-                args[i++] = beanFactory.getBean(parameter.getType().getName());
+                args[i++] = beanFactory.getBean(parameter.getType().getSimpleName());
             }else {
                 String qualifier = null;
                 if (parameter.isAnnotationPresent(Qualifier.class)){

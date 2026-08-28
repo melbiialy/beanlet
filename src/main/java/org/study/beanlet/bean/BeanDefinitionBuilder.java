@@ -39,6 +39,10 @@ public class BeanDefinitionBuilder {
         beanDefinition.setFactoryMethod(factoryMethod);
         return this;
     }
+    public BeanDefinitionBuilder factoryBeanName(String factoryBeanName) {
+        beanDefinition.setFactoryBeanName(factoryBeanName);
+        return this;
+    }
 
 
     public BeanDefinition build() {

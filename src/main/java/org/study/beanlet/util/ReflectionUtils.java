@@ -69,7 +69,7 @@ public class ReflectionUtils {
     public static String[] getAllInterfaces(Class<?> clazz) {
         return clazz.getInterfaces().length == 0 ? new String[]{} :
                 java.util.Arrays.stream(clazz.getInterfaces())
-                        .map(Class::getName)
+                        .map(Class::getSimpleName)
                         .toArray(String[]::new);
     }
 

@@ -20,6 +20,7 @@ public class BeanDefinition {
     private Method initMethod;
     private Method destroyMethod;
     private Method factoryMethod;
+    private String factoryBeanName;
 
 
     public BeanDefinition() {
@@ -78,5 +79,13 @@ public class BeanDefinition {
     }
     public Method getDestroyMethod() {
         return destroyMethod;
+    }
+
+    public String getFactoryBeanName() {
+        return factoryBeanName;
+    }
+
+    public void setFactoryBeanName(String factoryBeanName) {
+        this.factoryBeanName = factoryBeanName;
     }
 }

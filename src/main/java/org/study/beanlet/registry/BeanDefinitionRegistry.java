@@ -56,14 +56,14 @@ public class BeanDefinitionRegistry {
         typeToNameCache.put(dependencyType,candidates);
         if (candidates.isEmpty()) {
             throw new BeanNotFoundException(
-                    "No bean found matching type: " + dependencyType.getName());
+                    "No bean found matching type: " + dependencyType.getSimpleName());
         }
 
 
         if (candidates.size() > 1) {
             if (qualifierValue == null) {
                 throw new NoUniqueBeanDefinitionException(
-                        "Expected a single bean matching type " + dependencyType.getName() +
+                        "Expected a single bean matching type " + dependencyType.getSimpleName() +
                                 " but found " + candidates.size() + " candidates: " + candidates +
                                 " — consider using @Qualifier to disambiguate");
             }
@@ -77,7 +77,7 @@ public class BeanDefinitionRegistry {
                         primary = candidateName;
                     }else {
                         throw new NoUniqueBeanDefinitionException(
-                                "Expected a single bean matching type " + dependencyType.getName() +
+                                "Expected a single bean matching type " + dependencyType.getSimpleName() +
                                         " but found " + candidates.size() + " candidates: " + candidates +
                                         " — consider using @Qualifier to disambiguate");
                     }
@@ -92,12 +92,12 @@ public class BeanDefinitionRegistry {
 
             if (qualifiedCandidates.isEmpty()) {
                 throw new BeanNotFoundException(
-                        "No bean matching type " + dependencyType.getName() +
+                        "No bean matching type " + dependencyType.getSimpleName() +
                                 " with qualifier '" + qualifierValue + "' found among candidates: " + candidates);
             }
             if (qualifiedCandidates.size() > 1) {
                 throw new NoUniqueBeanDefinitionException(
-                        "Multiple beans matching type " + dependencyType.getName() +
+                        "Multiple beans matching type " + dependencyType.getSimpleName() +
                                 " with qualifier '" + qualifierValue + "': " + qualifiedCandidates);
             }
 

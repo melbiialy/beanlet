@@ -12,7 +12,7 @@ public class FactoryMethodInstantiator implements BeanCreationStrategy{
     @Override
     public Object create(BeanDefinition beanDefinition, BeanFactory beanFactory) throws Exception {
         Method factoryMethod = beanDefinition.getFactoryMethod();
-        String className = factoryMethod.getDeclaringClass().getName();
+        String className = factoryMethod.getDeclaringClass().getSimpleName();
         Object[] args = DependencyResolver.resolveDependencies(factoryMethod.getParameters(), beanFactory);
         factoryMethod.setAccessible(true);
         return factoryMethod.invoke(beanFactory.getBean(className),args);

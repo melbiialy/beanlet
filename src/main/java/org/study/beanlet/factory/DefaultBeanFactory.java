@@ -2,6 +2,7 @@ package org.study.beanlet.factory;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.study.beanlet.bean.BeanWrapper;
 import org.study.beanlet.exception.BeanNotFoundException;
 import org.study.beanlet.processor.BeanPostProcessor;
 import org.study.beanlet.bean.BeanDefinition;
@@ -13,7 +14,6 @@ import org.study.beanlet.support.CreationTracker;
 import org.study.beanlet.registry.BeanCacheManager;
 import org.study.beanlet.logging.CircularDependencyReporter;
 import org.study.beanlet.env.PropertySource;
-import org.study.beanlet.support.DependencyResolver;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
@@ -112,9 +112,8 @@ public  class DefaultBeanFactory implements BeanFactory, AutoCloseable {
         if (constructor == null) {
             constructor = beanDefinition.getBeanClass().getDeclaredConstructor();
         }
-        Object[] args = DependencyResolver.resolveDependencies(constructor.getParameters(), this);
-        constructor.setAccessible(true);
-        Object bean = constructor.newInstance(args);
+        BeanWrapper beanWrapper = new BeanWrapper(beanDefinition,this,constructor);
+        Object bean = beanWrapper.getBean();
         beanCacheManager.registerEarlyFactoryBean(beanName,()->resolveEarlyRef(bean,beanName),beanDefinition.getBeanScope());
 
         creationTracker.finishInstantiation(beanName);

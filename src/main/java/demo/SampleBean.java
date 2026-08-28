@@ -5,7 +5,6 @@ import org.study.beanlet.annotation.Component;
 import org.study.beanlet.annotation.PreDestroy;
 import org.study.beanlet.annotation.PostConstruct;
 
-@Component
 public class SampleBean {
     public SampleBean() {
         System.out.println(this);

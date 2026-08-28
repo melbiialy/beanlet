@@ -46,13 +46,13 @@ public class BeanPostProcessorScanner {
             return (BeanPostProcessor) constructor.newInstance();
         } catch (NoSuchMethodException e) {
             throw new IllegalStateException(
-                    "BeanPostProcessor " + clazz.getName() + " must have a no-arg constructor", e);
+                    "BeanPostProcessor " + clazz.getSimpleName() + " must have a no-arg constructor", e);
         } catch (InvocationTargetException e) {
             throw new IllegalStateException(
-                    "Constructor of " + clazz.getName() + " threw an exception during instantiation", e.getCause());
+                    "Constructor of " + clazz.getSimpleName() + " threw an exception during instantiation", e.getCause());
         } catch (InstantiationException | IllegalAccessException e) {
             throw new IllegalStateException(
-                    "Failed to instantiate BeanPostProcessor: " + clazz.getName(), e);
+                    "Failed to instantiate BeanPostProcessor: " + clazz.getSimpleName(), e);
         }
     }
 }

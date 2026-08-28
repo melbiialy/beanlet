@@ -22,8 +22,9 @@ public class ConfigurationExtractor implements BeanDefinitionExtractor {
                     .lazy(ReflectionUtils.isLazy(method.getReturnType()))
                     .initMethod(ReflectionUtils.getInitMethod(method.getReturnType()))
                     .destroyMethod(ReflectionUtils.getDestroyMethod(method.getReturnType()))
-//                    .primary(ReflectionUtils.isPrimary(method.getReturnType()))
+                    .primary(ReflectionUtils.isPrimary(method.getReturnType()))
                     .factoryMethod(method)
+                    .factoryBeanName(clazz.getSimpleName())
                     .build();
         }).toList();
     }

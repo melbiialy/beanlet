@@ -77,7 +77,7 @@ public class AutowiredAnnotationBeanPostProcessor implements SmartInstantiationA
         } catch (Exception ex) {
             if (required) {
                 throw new UnsatisfiedDependencyException(
-                        "Cannot resolve dependency " + dependencyType.getName() + " for bean " + beanName);
+                        "Cannot resolve dependency " + dependencyType.getSimpleName() + " for bean " + beanName);
             }
             return null;
         }
@@ -94,7 +94,7 @@ public class AutowiredAnnotationBeanPostProcessor implements SmartInstantiationA
             } catch (Exception ex) {
                 if (required) {
                     throw new UnsatisfiedDependencyException(
-                            "Cannot resolve dependency " + paramType.getName() + " for bean " + beanName);
+                            "Cannot resolve dependency " + paramType.getSimpleName() + " for bean " + beanName);
                 }
                 return null;
             }
