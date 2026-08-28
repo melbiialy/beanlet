@@ -161,6 +161,11 @@ public  class DefaultBeanFactory implements BeanFactory, AutoCloseable {
     }
 
     @Override
+    public void registerBean(String beanName, Object bean) throws Exception {
+        this.beanCacheManager.registerBean(beanName,BeanScope.SINGLETON,bean);
+    }
+
+    @Override
     public void close()  {
         logger.info("Shutting down BeanFactory, destroying singleton beans...");
         for (String beanName : registry.getBeanNames()) {
@@ -168,19 +173,26 @@ public  class DefaultBeanFactory implements BeanFactory, AutoCloseable {
             if (beanDefinition.getBeanScope() != BeanScope.SINGLETON){
                 continue;
             }
-            if (beanDefinition.getDestroyMethod() == null){
-                continue;
-            }
             Object bean = beanCacheManager.getBean(beanName,false,beanDefinition.getBeanScope());
-            if (bean == null)continue;
-            try {
-                beanDefinition.getDestroyMethod().invoke(bean);
-                logger.trace("Destroy method invoked on bean: {}", beanName);
-            } catch (InvocationTargetException | IllegalAccessException e) {
-                logger.error("Error invoking destroy method on bean: {}", beanName, e);
+            if (bean == null) continue;
+
+            if (beanDefinition.getDestroyMethod() != null) {
+                try {
+                    beanDefinition.getDestroyMethod().invoke(bean);
+                    logger.trace("Destroy method invoked on bean: {}", beanName);
+                } catch (InvocationTargetException | IllegalAccessException e) {
+                    logger.error("Error invoking destroy method on bean: {}", beanName, e);
+                }
+            }
+
+            if (bean instanceof AutoCloseable closeable) {
+                try {
+                    closeable.close();
+                    logger.trace("Closed AutoCloseable bean: {}", beanName);
+                } catch (Exception e) {
+                    logger.error("Error closing bean: {}", beanName, e);
+                }
             }
         }
-
-
     }
 }
