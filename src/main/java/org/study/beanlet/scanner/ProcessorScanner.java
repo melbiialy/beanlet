@@ -1,5 +1,6 @@
 package org.study.beanlet.scanner;
 
+import org.study.beanlet.processor.BeanFactoryPostProcessor;
 import org.study.beanlet.processor.BeanPostProcessor;
 
 import java.lang.reflect.Constructor;
@@ -10,36 +11,54 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-public class BeanPostProcessorScanner {
+public class ProcessorScanner {
+    List<BeanFactoryPostProcessor> beanFactoryPostProcessors;
+    List<BeanPostProcessor> beanPostProcessors;
 
     private final ClassPathScanner classPathScanner;
 
-    public BeanPostProcessorScanner(ClassPathScanner classPathScanner) {
+    public ProcessorScanner(ClassPathScanner classPathScanner) throws ClassNotFoundException {
         this.classPathScanner = classPathScanner;
+        beanPostProcessors = new ArrayList<>();
+        beanFactoryPostProcessors = new ArrayList<>();
+        scan("");
+
     }
 
-    public List<BeanPostProcessor> getBeanPostProcessors(String basePackage) throws ClassNotFoundException {
+    public List<BeanFactoryPostProcessor> getBeanFactoryPostProcessors() {
+        return beanFactoryPostProcessors;
+    }
+
+    public List<BeanPostProcessor> getBeanPostProcessors() {
+        return beanPostProcessors;
+    }
+
+    public List<BeanPostProcessor> scan(String basePackage) throws ClassNotFoundException {
         Set<Class<?>> classes = new HashSet<>();
         classPathScanner.loadClasses(basePackage, classes);
 
-        List<BeanPostProcessor> beanPostProcessors = new ArrayList<>();
 
         for (Class<?> clazz : classes) {
-            if (!BeanPostProcessor.class.isAssignableFrom(clazz)) {
-                continue;
+            if (BeanPostProcessor.class.isAssignableFrom(clazz)) {
+                BeanPostProcessor instance = (BeanPostProcessor) instantiate(clazz);
+                beanPostProcessors.add(instance);
+            }
+            if (BeanFactoryPostProcessor.class.isAssignableFrom(clazz)) {
+                BeanFactoryPostProcessor instance = (BeanFactoryPostProcessor) instantiate(clazz);
+                beanFactoryPostProcessors.add(instance);
             }
             if (clazz.isInterface() || Modifier.isAbstract(clazz.getModifiers())) {
                 continue;
             }
 
-            BeanPostProcessor instance = instantiate(clazz);
+            BeanPostProcessor instance = (BeanPostProcessor) instantiate(clazz);
             beanPostProcessors.add(instance);
         }
 
         return beanPostProcessors;
     }
 
-    private BeanPostProcessor instantiate(Class<?> clazz) {
+    private Object instantiate(Class<?> clazz) {
         try {
             Constructor<?> constructor = clazz.getDeclaredConstructor(); // requires a no-arg constructor
             constructor.setAccessible(true);

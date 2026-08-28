@@ -8,6 +8,7 @@ import org.slf4j.LoggerFactory;
 import org.study.beanlet.bean.BeanScope;
 import org.study.beanlet.factory.BeanFactory;
 import org.study.beanlet.factory.DefaultBeanFactory;
+import org.study.beanlet.processor.BeanFactoryPostProcessor;
 import org.study.beanlet.registry.BeanDefinitionRegistry;
 import org.study.beanlet.registry.BeanCacheManager;
 import org.study.beanlet.registry.BeanScopeRegistry;
@@ -21,25 +22,29 @@ import org.study.beanlet.exception.InitializationException;
 import org.study.beanlet.logging.LoggerConfig;
 
 
+import java.io.Closeable;
 import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 
-public class DefaultApplicationContext implements ApplicationContext{
+public class DefaultApplicationContext implements ApplicationContext, Closeable {
     
     private BeanFactory beanFactory;
     private final Level DEFAULT_LEVEL = Level.INFO;
     private final PropertySource properties;
     private final Logger rootLogger;
-    private final BeanPostProcessorScanner beanPostProcessorScanner;
+    private final ProcessorScanner processorScanner;
+    private final SingletonBeanRegistry singletonBeanRegistry;
+    private List<BeanFactoryPostProcessor>  beanFactoryPostProcessors;
 
-    public DefaultApplicationContext() {
-        this.beanPostProcessorScanner = new BeanPostProcessorScanner(new FileSystemClassPathScanner());
+    public DefaultApplicationContext() throws ClassNotFoundException {
+        this.processorScanner = new ProcessorScanner(new FileSystemClassPathScanner());
         properties = getPropertySource();
         rootLogger = (Logger) LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
         configureLoggingLevel();
+        singletonBeanRegistry = new SingletonBeanRegistry();
 
     }
 
@@ -53,33 +58,37 @@ public class DefaultApplicationContext implements ApplicationContext{
         }
     }
 
+
     @Override
     public Object getBean(String beanName) throws Exception {
-       return beanFactory.getBean(beanName);
+       return singletonBeanRegistry.retrieveBean(beanName,true);
     }
 
 
-    @Override
+
     public String  getValue(String path) {
         return properties.getProperty(path);
     }
 
-    @Override
+
     public Object getBeanByType(Class<?> dependencyType, String value) throws Exception {
         return null;
     }
 
     @Override
-    public void refresh() throws ClassNotFoundException {
+    public void refresh() throws Exception {
         long start = System.currentTimeMillis();
         rootLogger.info("Refreshing application context");
         rootLogger.info("Scanning packages:");
+
         BeanDefinitionRegistry registry = getBeanDefinitionRegistry(properties);
         rootLogger.info("Found {} beans",registry.getBeanNames().size());
         rootLogger.info("Bean scanning took {} ms",System.currentTimeMillis()-start);
         Map<BeanScope, BeanScopeRegistry> beanScopeRegistryMap = new ConcurrentHashMap<>();
-        beanScopeRegistryMap.put(BeanScope.SINGLETON,new SingletonBeanRegistry());
-        beanFactory = new DefaultBeanFactory(registry,properties,new BeanCacheManager(beanScopeRegistryMap),beanPostProcessorScanner.getBeanPostProcessors(""));
+        beanScopeRegistryMap.put(BeanScope.SINGLETON,singletonBeanRegistry);
+        beanFactory = new DefaultBeanFactory(registry,properties,new BeanCacheManager(beanScopeRegistryMap),processorScanner.getBeanPostProcessors());
+        handleBeanFactoryProcessors(registry);
+        registerCoreDefinition(registry);
         preInitializeBeans(registry);
         rootLogger.info("Bean factory initialized successfully in {} ms",System.currentTimeMillis()-start);
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
@@ -90,6 +99,18 @@ public class DefaultApplicationContext implements ApplicationContext{
             }
         }));
     }
+
+    private void registerCoreDefinition(BeanDefinitionRegistry registry) {
+    }
+
+    private void handleBeanFactoryProcessors(BeanDefinitionRegistry registry) {
+        for (BeanFactoryPostProcessor beanFactoryPostProcessor : processorScanner.getBeanFactoryPostProcessors()) {
+            if (beanFactoryPostProcessor != null) {
+                beanFactoryPostProcessor.postProcessorBeanFactory(registry);
+            }
+        }
+    }
+
 
     private void preInitializeBeans(BeanDefinitionRegistry registry) {
         for (String beanName : registry.getBeanNames()) {
@@ -128,8 +149,12 @@ public class DefaultApplicationContext implements ApplicationContext{
         return propertySourceLoader.loadProperties("application.yml");
     }
 
-    @Override
-    public void close() throws Exception {
-        beanFactory.close();
+
+    public void close() {
+        try {
+            beanFactory.close();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 }

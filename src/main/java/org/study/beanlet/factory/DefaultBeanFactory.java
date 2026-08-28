@@ -161,6 +161,11 @@ public  class DefaultBeanFactory implements BeanFactory, AutoCloseable {
     }
 
     @Override
+    public void registerBean(String beanName, Object bean) throws Exception {
+        this.beanCacheManager.registerBean(beanName,BeanScope.SINGLETON,bean);
+    }
+
+    @Override
     public void close()  {
         logger.info("Shutting down BeanFactory, destroying singleton beans...");
         for (String beanName : registry.getBeanNames()) {
