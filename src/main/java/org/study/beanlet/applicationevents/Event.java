@@ -14,7 +14,6 @@ public class Event {
         return eventClass.isAssignableFrom(event.getClass());
     }
     public void consume(Object event) {
-        System.out.println("consume event: " + event);
         consumer.accept(event);
     }
 

@@ -12,16 +12,14 @@ import java.lang.reflect.InvocationTargetException;
 public class Main {
     public static void main(String[] args) throws Exception {
 
-
-        ApplicationContext applicationContext = new DefaultApplicationContext();
-        applicationContext.refresh();
-        EventRegistry eventRegistry = (EventRegistry) applicationContext.getBean("EventRegistry");
-        Event event = new Event(String.class, System.out::println);
-        eventRegistry.register(event);
-        ApplicationEventPublisher applicationEventPublisher = (ApplicationEventPublisher) applicationContext.getBean("ApplicationEventPublisher");
-        applicationEventPublisher.publish("hello world");
-        Thread.sleep(5000);
-
+        try (DefaultApplicationContext applicationContext = new DefaultApplicationContext()) {
+            applicationContext.refresh();
+            EventRegistry eventRegistry = (EventRegistry) applicationContext.getBean("EventRegistry");
+            Event event = new Event(String.class, System.out::println);
+            eventRegistry.register(event);
+            ApplicationEventPublisher applicationEventPublisher = (ApplicationEventPublisher) applicationContext.getBean("ApplicationEventPublisher");
+            applicationEventPublisher.publish("hello world");
+        }
 
     }
 }

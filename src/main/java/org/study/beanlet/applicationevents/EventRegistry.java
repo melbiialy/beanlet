@@ -13,7 +13,6 @@ public class EventRegistry {
         this.events = new ConcurrentHashMap<>();
     }
     public List<Event> getEvents(Object event) {
-        System.out.println(event.getClass());
         return events.get(event.getClass());
     }
     public void register(Event event) {

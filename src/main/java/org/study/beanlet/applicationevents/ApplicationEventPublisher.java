@@ -24,7 +24,6 @@ public class ApplicationEventPublisher implements Closeable {
     }
 
     public void publish(Object event) {
-        System.out.println("publish event:"+event);
         List<Event> events = eventRegistry.getEvents(event);
 
         if (events == null) {

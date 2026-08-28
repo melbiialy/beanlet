@@ -39,7 +39,13 @@ public class ProcessorScanner {
 
 
         for (Class<?> clazz : classes) {
-            if (BeanPostProcessor.class.isAssignableFrom(clazz)) {
+            // Skip interfaces and abstract classes — they can't be instantiated
+            if (clazz.isInterface() || Modifier.isAbstract(clazz.getModifiers())) {
+                continue;
+            }
+
+            if (BeanPostProcessor.class.isAssignableFrom(clazz) &&
+                    !BeanFactoryPostProcessor.class.isAssignableFrom(clazz)) {
                 BeanPostProcessor instance = (BeanPostProcessor) instantiate(clazz);
                 beanPostProcessors.add(instance);
             }
@@ -47,12 +53,6 @@ public class ProcessorScanner {
                 BeanFactoryPostProcessor instance = (BeanFactoryPostProcessor) instantiate(clazz);
                 beanFactoryPostProcessors.add(instance);
             }
-            if (clazz.isInterface() || Modifier.isAbstract(clazz.getModifiers())) {
-                continue;
-            }
-
-            BeanPostProcessor instance = (BeanPostProcessor) instantiate(clazz);
-            beanPostProcessors.add(instance);
         }
 
         return beanPostProcessors;
@@ -60,9 +60,9 @@ public class ProcessorScanner {
 
     private Object instantiate(Class<?> clazz) {
         try {
-            Constructor<?> constructor = clazz.getDeclaredConstructor(); // requires a no-arg constructor
+            Constructor<?> constructor = clazz.getDeclaredConstructor();
             constructor.setAccessible(true);
-            return (BeanPostProcessor) constructor.newInstance();
+            return  constructor.newInstance();
         } catch (NoSuchMethodException e) {
             throw new IllegalStateException(
                     "BeanPostProcessor " + clazz.getSimpleName() + " must have a no-arg constructor", e);
