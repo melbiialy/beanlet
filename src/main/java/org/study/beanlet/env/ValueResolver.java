@@ -11,7 +11,7 @@ public class ValueResolver{
             case "Boolean","boolean" -> Boolean.parseBoolean(value);
             case "Character","char" -> value.charAt(0);
             case "Byte","byte" -> Byte.parseByte(value);
-            case "Short" -> Short.parseShort(value);
+            case "Short", "short" -> Short.parseShort(value);
             default -> value;
         };
     }

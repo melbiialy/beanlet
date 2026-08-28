@@ -80,7 +80,11 @@ public  class DefaultBeanFactory implements BeanFactory, AutoCloseable {
         }
         for (BeanPostProcessor beanPostProcessor : beanPostProcessors) {
             if (beanPostProcessor instanceof InstantiationAwareBeanPostProcessor istp ) {
-                istp.postProcessAfterInitialization(bean,beanName);
+                try {
+                    istp.postProcessProperties(bean, beanName, this);
+                } catch (Exception e) {
+                    throw new RuntimeException("Failed to populate bean: " + beanName, e);
+                }
             }
         }
         creationTracker.finalizeCreationPhase(beanName);

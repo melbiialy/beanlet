@@ -1,0 +1,7 @@
+server:
+  host: localhost
+  ports:
+    - 8080
+    - 8081
+features:
+  enabled: true

@@ -13,7 +13,10 @@ public class EventRegistry {
         this.events = new ConcurrentHashMap<>();
     }
     public List<Event> getEvents(Object event) {
-        return events.get(event.getClass());
+        return events.values().stream()
+                .flatMap(List::stream)
+                .filter(registeredEvent -> registeredEvent.support(event))
+                .toList();
     }
     public void register(Event event) {
         events.computeIfAbsent(event.eventClass, k -> new CopyOnWriteArrayList<>()).add(event);    }

@@ -5,7 +5,7 @@ import org.study.beanlet.factory.BeanFactory;
 public interface InstantiationAwareBeanPostProcessor extends BeanPostProcessor {
 
     default Object getEarlyBeanReference(Object bean, String beanName){
-        return null;
+        return bean;
     }
     void postProcessProperties(Object bean, String beanName, BeanFactory beanFactory) throws Exception;
 

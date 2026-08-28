@@ -61,13 +61,6 @@ public class BeanDefinitionRegistry {
 
 
         if (candidates.size() > 1) {
-            if (qualifierValue == null) {
-                throw new NoUniqueBeanDefinitionException(
-                        "Expected a single bean matching type " + dependencyType.getSimpleName() +
-                                " but found " + candidates.size() + " candidates: " + candidates +
-                                " — consider using @Qualifier to disambiguate");
-            }
-
             List<String> qualifiedCandidates = new ArrayList<>();
             String  primary = null;
             for (String candidateName : candidates) {
@@ -82,12 +75,18 @@ public class BeanDefinitionRegistry {
                                         " — consider using @Qualifier to disambiguate");
                     }
                 }
-                if (qualifierValue.equals(definition.getBeanQualifiedName()) || qualifierValue.equals(candidateName)) {
+                if (qualifierValue != null && (qualifierValue.equals(definition.getBeanQualifiedName()) || qualifierValue.equals(candidateName))) {
                     qualifiedCandidates.add(candidateName);
                 }
             }
-            if (primary != null) {
-                return primary;
+            if (qualifierValue == null) {
+                if (primary != null) {
+                    return primary;
+                }
+                throw new NoUniqueBeanDefinitionException(
+                        "Expected a single bean matching type " + dependencyType.getSimpleName() +
+                                " but found " + candidates.size() + " candidates: " + candidates +
+                                " — consider using @Qualifier to disambiguate");
             }
 
             if (qualifiedCandidates.isEmpty()) {
